@@ -226,6 +226,10 @@ void stx(Machine *m, AddrMode addr_mode) {
     machine_write_byte_with_mode(m, addr_mode, m->cpu.X);
 }
 
+void sty(Machine *m, AddrMode addr_mode) {
+    machine_write_byte_with_mode(m, addr_mode, m->cpu.Y);
+}
+
 void tax(Machine *m, AddrMode UNUSED addr_mode) {
     m->cpu.X = m->cpu.A;
     m->cpu.cycles++;

@@ -4,8 +4,8 @@
 
 typedef struct {
     void (*op_fn)(Machine *m, AddrMode addr_mode); // operation
-    AddrMode addr_mode;
-    const char *name;                                      // opcode mnemonic
+    AddrMode addr_mode;   // addressing mode
+    const char *name;    // opcode mnemonic
 } Opcode;
 
 extern const Opcode opcodes[256];

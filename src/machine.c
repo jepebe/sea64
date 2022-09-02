@@ -38,46 +38,83 @@ void machine_write_byte(Machine *machine, u16 addr, u8 value) {
 }
 
 u8 machine_read_byte_with_mode(Machine *machine, AddrMode mode) {
+    u16 addr = 0x0000;
     switch (mode) {
         case Absolute: {
-            u16 addr = machine_read_immediate_word(machine);
-            return machine_read_byte(machine, addr);
+            addr = machine_read_immediate_word(machine);
+            break;
         }
         case Immediate:
-            return machine_read_byte(machine, machine->cpu.PC++);
+            addr = machine->cpu.PC++;
+            break;
         case XIndexedAbsolute: {
-            u16 addr = machine_read_immediate_word(machine);
+            addr = machine_read_immediate_word(machine);
             addr += machine->cpu.X;
-            return machine_read_byte(machine, addr);
+            break;
+        }
+        case XIndexedZeroPage: {
+            u8 zero_page_addr = machine_read_immediate_byte(machine);
+            addr = (zero_page_addr + machine->cpu.X) & 0x00FF;
+            break;
+        }
+        case YIndexedAbsolute: {
+            addr = machine_read_immediate_word(machine);
+            addr += machine->cpu.Y;
+            break;
+        }
+        case YIndexedZeroPage: {
+            u8 zero_page_addr = machine_read_immediate_byte(machine);
+            addr = (zero_page_addr + machine->cpu.Y) & 0x00FF;
+            break;
         }
         case ZeroPage: {
-            u8 index = machine_read_immediate_byte(machine);
-            u16 addr = (0x00 << 8) | index;
-            return machine_read_byte(machine, addr);
+            addr = machine_read_immediate_byte(machine) & 0x00FF;
+            break;
         }
         default:
             cpu_error_marker(machine, __FILE__, __LINE__);
             cpu_error(machine, "addressing mode %d not implemented", mode);
     }
+    return machine_read_byte(machine, addr);
 }
 
 void machine_write_byte_with_mode(Machine *machine, AddrMode mode, u8 value) {
+    u16 addr = 0x0000;
     switch (mode) {
         case Absolute: {
-            u16 addr = machine_read_immediate_word(machine);
-            machine_write_byte(machine, addr, value);
+            addr = machine_read_immediate_word(machine);
+            break;
+        }
+        case XIndexedAbsolute: {
+            addr = machine_read_immediate_word(machine);
+            addr += machine->cpu.X;
+            break;
+        }
+        case XIndexedZeroPage: {
+            u8 zero_page_addr = machine_read_immediate_byte(machine);
+            addr = (zero_page_addr + machine->cpu.X) & 0x00FF;
+            break;
+        }
+        case YIndexedAbsolute: {
+            addr = machine_read_immediate_word(machine);
+            addr += machine->cpu.Y;
+            break;
+        }
+        case YIndexedZeroPage: {
+            u8 zero_page_addr = machine_read_immediate_byte(machine);
+            addr = (zero_page_addr + machine->cpu.Y) & 0x00FF;
             break;
         }
         case ZeroPage: {
             u8 index = machine_read_immediate_byte(machine);
-            u16 addr = (0x00 << 8) | index;
-            machine_write_byte(machine, addr, value);
+            addr = (0x00 << 8) | index;
             break;
         }
         default:
             cpu_error_marker(machine, __FILE__, __LINE__);
             cpu_error(machine, "addressing mode %d not implemented", mode);
     }
+    machine_write_byte(machine, addr, value);
 }
 
 u8 machine_read_immediate_byte(Machine *machine) {

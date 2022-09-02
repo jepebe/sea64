@@ -31,15 +31,19 @@ const Opcode opcodes[] = {
         [0x70] = {bvs, Relative, "BVS"},
         [0x78] = {sei, Implied, "SEI"},
 
-        [0x88] = {dey, Implied, "DEY"},
-        [0x8A] = {txa, Implied, "TXA"},
         [0x85] = {sta, ZeroPage, "STA"},
         [0x86] = {stx, ZeroPage, "STX"},
+        [0x88] = {dey, Implied, "DEY"},
+        [0x8A] = {txa, Implied, "TXA"},
         [0x8D] = {sta, Absolute, "STA"},
 
         [0x90] = {bcc, Relative, "BCC"},
+        [0x94] = {sty, XIndexedZeroPage, "STY"},
+        [0x96] = {stx, YIndexedZeroPage, "STX"},
         [0x98] = {tya, Implied, "TYA"},
+        [0x99] = {sta, YIndexedAbsolute, "STA"},
         [0x9A] = {txs, Implied, "TXS"},
+        [0x9D] = {sta, XIndexedAbsolute, "STA"},
 
         [0xA0] = {ldy, Immediate, "LDY"},
         [0xA2] = {ldx, Immediate, "LDX"},
@@ -51,8 +55,14 @@ const Opcode opcodes[] = {
         [0xAD] = {lda, Absolute, "LDA"},
 
         [0xB0] = {bcs, Relative, "BCS"},
-        [0xBA] = {tsx, Implied, "TSX"},
+        [0xB4] = {ldy, XIndexedZeroPage, "LDY"},
+        [0xB5] = {lda, XIndexedZeroPage, "LDA"},
+        [0xB6] = {ldx, YIndexedZeroPage, "LDX"},
         [0xB8] = {clv, Implied, "CLV"},
+        [0xB9] = {lda, YIndexedAbsolute, "LDA"},
+        [0xBA] = {tsx, Implied, "TSX"},
+        [0xBC] = {ldy, XIndexedAbsolute, "LDY"},
+        [0xBE] = {ldx, YIndexedAbsolute, "LDX"},
         [0xBD] = {lda, XIndexedAbsolute, "LDA"},
 
         [0xC0] = {cpy, Immediate, "CPY"},
@@ -63,6 +73,9 @@ const Opcode opcodes[] = {
 
         [0xD0] = {bne, Relative, "BNE"},
         [0xD8] = {cld, Implied, "CLD"},
+        [0xD5] = {cmp, XIndexedZeroPage, "CMP"},
+        [0xD9] = {cmp, YIndexedAbsolute, "CMP"},
+        [0xDD] = {cmp, XIndexedAbsolute, "CMP"},
 
         [0xE0] = {cpx, Immediate, "CPX"},
         [0xE8] = {inx, Implied, "INX"},

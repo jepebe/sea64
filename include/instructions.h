@@ -162,6 +162,10 @@ void sta(Machine *m, AddrMode addr_mode);
 // Operation: X → M
 void stx(Machine *m, AddrMode addr_mode);
 
+// STY - Store Index Register Y In Memory
+// Operation: Y → M
+void sty(Machine *m, AddrMode addr_mode);
+
 // TAX - Transfer Accumulator To Index X
 // Operation: A → X
 void tax(Machine *m, AddrMode addr_mode);

@@ -9,6 +9,9 @@ typedef enum {
     Implied,
     Relative,
     XIndexedAbsolute,
+    XIndexedZeroPage,
+    YIndexedAbsolute,
+    YIndexedZeroPage,
     ZeroPage,
 } AddrMode;
 
