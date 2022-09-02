@@ -2,39 +2,63 @@
 #include "stdio.h"
 #include "debug.h"
 
-static char read_mode_buffer[20];
+static char addr_mode_buffer[20];
 static char register_buffer[21];
 static char flags_buffer[9];
 
 static char *decode_addr_mode(Machine *machine, u16 addr, AddrMode mode) {
     switch (mode) {
         case Absolute: {
-            u8 low = machine_read_byte(machine, addr + 1);
-            u8 high = machine_read_byte(machine, addr + 2);
+            u8 low = machine->ram[addr + 1];
+            u8 high = machine->ram[addr + 2];
             u16 abs_addr = (high << 8) | low;
-            sprintf(read_mode_buffer, "$%04X ", abs_addr);
+            sprintf(addr_mode_buffer, "$%04X ", abs_addr);
+            break;
+        }
+        case AbsoluteIndirect: {
+            u8 low = machine->ram[addr + 1];
+            u8 high = machine->ram[addr + 2];
+            u16 ind_addr = (high << 8) | low;
+
+            low = machine->ram[ind_addr];
+            high = machine->ram[(ind_addr & 0xFF00) | ((ind_addr & 0x00FF) + 1)];
+            u16 abs_addr = (high << 8) | low;
+
+            sprintf(addr_mode_buffer, "($%04X)->$%04X ", ind_addr, abs_addr);
             break;
         }
         case Immediate: {
             u8 value = machine->ram[addr + 1];
-            sprintf(read_mode_buffer, "#%02X (%d) ", value, value);
+            sprintf(addr_mode_buffer, "#$%02X (%d) ", value, value);
             break;
         }
         case Implied: {
-            read_mode_buffer[0] = '\0';
+            addr_mode_buffer[0] = '\0';
             break;
         }
         case Relative: {
-            s8 rel = (s8) machine_read_byte(machine, addr + 1);
+            s8 rel = (s8) machine->ram[addr + 1];
             u16 abs_addr = addr + 2 + rel;
-            sprintf(read_mode_buffer, "$%04X ", abs_addr);
+            sprintf(addr_mode_buffer, "$%04X ", abs_addr);
+            break;
+        }
+        case XIndexedAbsolute: {
+            u8 low = machine->ram[addr + 1];
+            u8 high = machine->ram[addr + 2];
+            u16 abs_addr = (high << 8) | low;
+            sprintf(addr_mode_buffer, "$%04X,X ", abs_addr);
+            break;
+        }
+        case ZeroPage: {
+            u8 zero_page_addr = machine->ram[addr + 1];
+            sprintf(addr_mode_buffer, "$%02X ", zero_page_addr);
             break;
         }
         default:
             cpu_error_marker(machine, __FILE__, __LINE__);
             cpu_error(machine, "addressing mode %d not implemented", mode);
     }
-    return read_mode_buffer;
+    return addr_mode_buffer;
 }
 
 static char *decode_registers(Machine *machine) {

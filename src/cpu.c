@@ -9,4 +9,7 @@ void cpu_reset(CPU *cpu) {
     cpu->P.status = 0x0;
     cpu->P.U = 1;
     cpu->P.I = 1;
+
+    cpu->cycles = 0;
+    cpu->tick_count = 0;
 }

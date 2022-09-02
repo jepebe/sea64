@@ -47,7 +47,7 @@ NO_RETURN void cpu_error(Machine *machine, char *message, ...) {
     printf("\n");
     cpu_stack_contents(machine);
 
-    printf("\x1b[0;31mFailure after %llu ticks.", machine->cpu.tick_count);
+    printf("\x1b[0;31mFailure after %llu instructions.", machine->cpu.tick_count);
     printf("\x1b[0m\n");
     exit(1);
 }

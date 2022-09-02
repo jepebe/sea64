@@ -2,18 +2,14 @@
 
 #include "seatypes.h"
 
-// Implied Cycles
-// +---------------+------------------+-----------------------+----------+
-// |     Cycle     |   Address Bus    |       Data Bus        |Read/Write|
-// +---------------+------------------+-----------------------+----------+
-// |           1   |  PBR,PC          | Op Code               |    R     |
-// |           2   |  PBR,PC+1        | Internal Operation    |    R     |
-// +---------------+------------------+-----------------------+----------+
 typedef enum {
     Absolute,
+    AbsoluteIndirect,
     Immediate,
     Implied,
     Relative,
+    XIndexedAbsolute,
+    ZeroPage,
 } AddrMode;
 
 typedef union {
@@ -38,7 +34,8 @@ typedef struct {
     CPUFlags P; // Processor Status
     u16 PC; // Program Counter
 
-    u64 cycles;  // Cycle count
+    u64 cycles;     // Cycle count
+    u64 tick_count; // number of opcodes processed
 } CPU;
 
 void cpu_reset(CPU *cpu);
