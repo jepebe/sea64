@@ -6,7 +6,7 @@ void cpu_reset(CPU *cpu) {
     cpu->X = 0x00;
     cpu->Y = 0x00;
     cpu->S = 0xFD;
-    cpu->P.flags = 0x0;
+    cpu->P.status = 0x0;
     cpu->P.U = 1;
     cpu->P.I = 1;
 }

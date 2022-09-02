@@ -17,7 +17,7 @@ typedef enum {
 } AddrMode;
 
 typedef union {
-    u8 flags;
+    u8 status;
     struct {
         u8 C: 1; // Carry flag
         u8 Z: 1; // Zero flag
