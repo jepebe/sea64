@@ -13,15 +13,49 @@ static void relative_branch(Machine *m, bool should_branch) {
     }
 }
 
-void adc(Machine *m, AddrMode addr_mode) {
-    u8 value = machine_read_byte_with_mode(m, addr_mode);
+static void add(Machine *m, u8 value) {
     u8 carry = m->cpu.P.C;
-    u16 result = m->cpu.A + value + carry;
+    u8 a = m->cpu.A;
+    u16 result = a + value + carry;
 
     m->cpu.P.C = result > 0xFF;
-    adjust_zero_and_negative_flag(m, result & 0xFF);
-    m->cpu.P.V = (~(m->cpu.A ^ value) & (m->cpu.A ^ result)) & 0x0080;
+    adjust_zero_and_negative_flag(m, result & 0x00FF);
+    u16 overflow = (~(a ^ value) & (a ^ result)) & 0x0080;
+    m->cpu.P.V = overflow == 0x0080;
     m->cpu.A = result & 0xFF;
+}
+
+void adc(Machine *m, AddrMode addr_mode) {
+    u8 value = machine_read_byte_with_mode(m, addr_mode);
+    add(m, value);
+}
+
+void and(Machine *m, AddrMode addr_mode) {
+    u8 mem = machine_read_byte_with_mode(m, addr_mode);
+    u8 result = m->cpu.A & mem;
+    adjust_zero_and_negative_flag(m, result);
+    m->cpu.A = result;
+}
+
+void asl(Machine *m, AddrMode addr_mode) {
+    u16 addr;
+    u8 value;
+    if (addr_mode == Accumulator) {
+        value = m->cpu.A;
+    } else {
+        addr = machine_fetch_address(m, addr_mode);
+        value = machine_read_byte(m, addr);
+    }
+
+    m->cpu.P.C = (value & 0x80) == 0x80;
+    value = value << 1;
+    adjust_zero_and_negative_flag(m, value);
+
+    if (addr_mode == Accumulator) {
+        m->cpu.A = value;
+    } else {
+        machine_write_byte(m, addr, value);
+    }
 }
 
 void bcc(Machine *m, AddrMode UNUSED addr_mode) {
@@ -30,6 +64,14 @@ void bcc(Machine *m, AddrMode UNUSED addr_mode) {
 
 void bcs(Machine *m, AddrMode UNUSED addr_mode) {
     relative_branch(m, m->cpu.P.C);
+}
+
+void bit(Machine *m, AddrMode addr_mode) {
+    u8 mem = machine_read_byte_with_mode(m, addr_mode);
+    m->cpu.P.N = (mem & 0x80) == 0x80;
+    m->cpu.P.V = (mem & 0x40) == 0x40;
+
+    m->cpu.P.Z = (m->cpu.A & mem) == 0x00;
 }
 
 void bmi(Machine *m, AddrMode UNUSED addr_mode) {
@@ -109,6 +151,14 @@ void cpy(Machine *m, AddrMode addr_mode) {
     m->cpu.P.C = value <= y;
 }
 
+void dec(Machine *m, AddrMode addr_mode) {
+    u16 addr = machine_fetch_address(m, addr_mode);
+    u8 value = machine_read_byte(m, addr);
+    value -= 1;
+    adjust_zero_and_negative_flag(m, value);
+    machine_write_byte(m, addr, value);
+}
+
 void dex(Machine *m, AddrMode UNUSED addr_mode) {
     m->cpu.X--;
     adjust_zero_and_negative_flag(m, m->cpu.X);
@@ -123,6 +173,14 @@ void eor(Machine *m, AddrMode addr_mode) {
     u8 mem = machine_read_byte_with_mode(m, addr_mode);
     m->cpu.A = m->cpu.A ^ mem;
     adjust_zero_and_negative_flag(m, m->cpu.A);
+}
+
+void inc(Machine *m, AddrMode addr_mode) {
+    u16 addr = machine_fetch_address(m, addr_mode);
+    u8 value = machine_read_byte(m, addr);
+    value += 1;
+    adjust_zero_and_negative_flag(m, value);
+    machine_write_byte(m, addr, value);
 }
 
 void inx(Machine *m, AddrMode UNUSED addr_mode) {
@@ -164,6 +222,27 @@ void ldy(Machine *m, AddrMode addr_mode) {
     adjust_zero_and_negative_flag(m, m->cpu.Y);
 }
 
+void lsr(Machine *m, AddrMode addr_mode) {
+    u16 addr;
+    u8 value;
+    if (addr_mode == Accumulator) {
+        value = m->cpu.A;
+    } else {
+        addr = machine_fetch_address(m, addr_mode);
+        value = machine_read_byte(m, addr);
+    }
+
+    m->cpu.P.C = (value & 0x01) == 0x01;
+    value = value >> 1;
+    adjust_zero_and_negative_flag(m, value);
+
+    if (addr_mode == Accumulator) {
+        m->cpu.A = value;
+    } else {
+        machine_write_byte(m, addr, value);
+    }
+}
+
 void nop(Machine *m, AddrMode UNUSED addr_mode) {
     m->cpu.cycles++;
 }
@@ -196,6 +275,52 @@ void plp(Machine *m, AddrMode UNUSED addr_mode) {
     m->cpu.P.B = false;
 }
 
+void rol(Machine *m, AddrMode addr_mode) {
+    u16 addr;
+    u8 value;
+    if (addr_mode == Accumulator) {
+        value = m->cpu.A;
+    } else {
+        addr = machine_fetch_address(m, addr_mode);
+        value = machine_read_byte(m, addr);
+    }
+
+    u8 carry = m->cpu.P.C;
+    m->cpu.P.C = (value & 0x80) == 0x80;
+    value = value << 1;
+    value = value | carry;
+    adjust_zero_and_negative_flag(m, value);
+
+    if (addr_mode == Accumulator) {
+        m->cpu.A = value;
+    } else {
+        machine_write_byte(m, addr, value);
+    }
+}
+
+void ror(Machine *m, AddrMode addr_mode) {
+    u16 addr;
+    u8 value;
+    if (addr_mode == Accumulator) {
+        value = m->cpu.A;
+    } else {
+        addr = machine_fetch_address(m, addr_mode);
+        value = machine_read_byte(m, addr);
+    }
+
+    u8 carry = m->cpu.P.C;
+    m->cpu.P.C = (value & 0x01) == 0x01;
+    value = value >> 1;
+    value = (carry << 7) | value;
+    adjust_zero_and_negative_flag(m, value);
+
+    if (addr_mode == Accumulator) {
+        m->cpu.A = value;
+    } else {
+        machine_write_byte(m, addr, value);
+    }
+}
+
 void rti(Machine *m, AddrMode UNUSED addr_mode) {
     plp(m, Implied);
     machine_pop_program_counter_from_stack(m);
@@ -204,6 +329,11 @@ void rti(Machine *m, AddrMode UNUSED addr_mode) {
 void rts(Machine *m, AddrMode UNUSED addr_mode) {
     machine_pop_program_counter_from_stack(m);
     m->cpu.PC++;
+}
+
+void sbc(Machine *m, AddrMode addr_mode) {
+    u8 value = machine_read_byte_with_mode(m, addr_mode);
+    add(m, ~value);
 }
 
 void sec(Machine *m, AddrMode UNUSED addr_mode) {

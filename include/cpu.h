@@ -5,14 +5,17 @@
 typedef enum {
     Absolute,
     AbsoluteIndirect,
+    Accumulator,
     Immediate,
     Implied,
     Relative,
     XIndexedAbsolute,
     XIndexedZeroPage,
+    XIndexedZeroPageIndirect,
     YIndexedAbsolute,
     YIndexedZeroPage,
     ZeroPage,
+    ZeroPageIndirectYIndexed,
 } AddrMode;
 
 typedef union {

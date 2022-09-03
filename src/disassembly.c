@@ -3,7 +3,7 @@
 #include "debug.h"
 
 static char addr_mode_buffer[20];
-static char register_buffer[21];
+static char register_buffer[26];
 static char flags_buffer[9];
 
 static char *decode_addr_mode(Machine *machine, u16 addr, AddrMode mode) {
@@ -13,6 +13,10 @@ static char *decode_addr_mode(Machine *machine, u16 addr, AddrMode mode) {
             u8 high = machine->ram[addr + 2];
             u16 abs_addr = (high << 8) | low;
             sprintf(addr_mode_buffer, "$%04X ", abs_addr);
+            break;
+        }
+        case Accumulator: {
+            sprintf(addr_mode_buffer, "A ");
             break;
         }
         case AbsoluteIndirect: {
@@ -29,7 +33,8 @@ static char *decode_addr_mode(Machine *machine, u16 addr, AddrMode mode) {
         }
         case Immediate: {
             u8 value = machine->ram[addr + 1];
-            sprintf(addr_mode_buffer, "#$%02X (%d) ", value, value);
+//            sprintf(addr_mode_buffer, "#$%02X (%d) ", value, value);
+            sprintf(addr_mode_buffer, "#%02X (%d) ", value, value);
             break;
         }
         case Implied: {
@@ -56,6 +61,11 @@ static char *decode_addr_mode(Machine *machine, u16 addr, AddrMode mode) {
             sprintf(addr_mode_buffer, "$%02X,X ", zero_page_addr);
             break;
         }
+        case XIndexedZeroPageIndirect: {
+            u8 zero_page_addr = machine->ram[addr + 1];
+            sprintf(addr_mode_buffer, "($%02X,X) ", zero_page_addr);
+            break;
+        }
         case YIndexedAbsolute: {
             u8 low = machine->ram[addr + 1];
             u8 high = machine->ram[addr + 2];
@@ -75,6 +85,11 @@ static char *decode_addr_mode(Machine *machine, u16 addr, AddrMode mode) {
             sprintf(addr_mode_buffer, "$%02X ", zero_page_addr);
             break;
         }
+        case ZeroPageIndirectYIndexed: {
+            u8 zero_page_addr = machine->ram[addr + 1];
+            sprintf(addr_mode_buffer, "($%02X),Y ", zero_page_addr);
+            break;
+        }
         default:
             cpu_error_marker(machine, __FILE__, __LINE__);
             cpu_error(machine, "addressing mode %d not implemented", mode);
@@ -87,7 +102,8 @@ static char *decode_registers(Machine *machine) {
     u8 x = machine->cpu.X;
     u8 y = machine->cpu.Y;
     u8 s = machine->cpu.S;
-    sprintf(register_buffer, "A:%02X X:%02X Y:%02X S:%02X ", a, x, y, s);
+    u8 p = machine->cpu.P.status;
+    sprintf(register_buffer, "A:%02X X:%02X Y:%02X S:%02X P:%02X ", a, x, y, s, p);
     return register_buffer;
 }
 

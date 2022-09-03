@@ -6,6 +6,14 @@
 // Operation: A + M + C → A, C
 void adc(Machine *m, AddrMode addr_mode);
 
+// AND - "AND" Memory with Accumulator
+// Operation: A ∧ M → A
+void and(Machine *m, AddrMode addr_mode);
+
+// ASL - Arithmetic Shift Left
+// Operation: C ← /M7...M0/ ← 0
+void asl(Machine *m, AddrMode addr_mode);
+
 // BCC - Branch on Carry Clear
 // Operation: Branch on C = 0
 void bcc(Machine *m, AddrMode addr_mode);
@@ -13,6 +21,10 @@ void bcc(Machine *m, AddrMode addr_mode);
 // BCS - Branch on Carry Set
 // Operation: Branch on C = 1
 void bcs(Machine *m, AddrMode addr_mode);
+
+// BIT - Test Bits in Memory with Accumulator
+// Operation: A ∧ M, M7 → N, M6 → V
+void bit(Machine *m, AddrMode addr_mode);
 
 // BMI - Branch on Result Minus
 // Operation: Branch on N = 1
@@ -70,6 +82,10 @@ void cpx(Machine *m, AddrMode addr_mode);
 // Operation: Y - M
 void cpy(Machine *m, AddrMode addr_mode);
 
+// DEC - Decrement Memory By One
+// Operation: M - 1 → M
+void dec(Machine *m, AddrMode addr_mode);
+
 // DEX - Decrement Index Register X By One
 // Operation: X - 1 → X
 void dex(Machine *m, AddrMode addr_mode);
@@ -81,6 +97,10 @@ void dey(Machine *m, AddrMode addr_mode);
 // EOR - "Exclusive OR" Memory with Accumulator
 // Operation: A ⊻ M → A
 void eor(Machine *m, AddrMode addr_mode);
+
+// INC - Increment Memory By One
+// Operation: M + 1 → M
+void inc(Machine *m, AddrMode addr_mode);
 
 // INX - Increment Index Register X By One
 // Operation: X + 1 → X
@@ -110,6 +130,10 @@ void ldy(Machine *m, AddrMode addr_mode);
 // Operation: M → X
 void ldx(Machine *m, AddrMode addr_mode);
 
+// LSR - Logical Shift Right
+// Operation: 0 → /M7...M0/ → C
+void lsr(Machine *m, AddrMode addr_mode);
+
 // NOP - No Operation
 // Operation: No operation
 void nop(Machine *m, AddrMode addr_mode);
@@ -134,6 +158,14 @@ void pla(Machine *m, AddrMode addr_mode);
 // Operation: P↑
 void plp(Machine *m, AddrMode addr_mode);
 
+// ROL - Rotate Left
+// Operation: C ← /M7...M0/ ← C
+void rol(Machine *m, AddrMode addr_mode);
+
+// ROR - Rotate Right
+// Operation: C → /M7...M0/ → C
+void ror(Machine *m, AddrMode addr_mode);
+
 // RTI - Return From Interrupt
 // Operation: P↑ PC↑
 void rti(Machine *m, AddrMode addr_mode);
@@ -141,6 +173,10 @@ void rti(Machine *m, AddrMode addr_mode);
 // RTS - Return From Subroutme
 // Operation: PC↑, PC + 1 → PC
 void rts(Machine *m, AddrMode addr_mode);
+
+// SBC - Subtract Memory from Accumulator with Borrow
+// Operation: A - M - ~C → A
+void sbc(Machine *m, AddrMode addr_mode);
 
 // SEC - Set Carry Flag
 // Operation: 1 → C

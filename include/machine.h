@@ -32,3 +32,5 @@ u8 machine_pop_byte_from_stack(Machine *machine);
 void machine_push_program_counter_on_stack(Machine *machine);
 
 void machine_pop_program_counter_from_stack(Machine *machine);
+
+u16 machine_fetch_address(Machine *machine, AddrMode mode);

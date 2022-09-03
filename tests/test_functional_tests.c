@@ -26,6 +26,11 @@ int main(void) {
             cpu_error_marker(&machine, __FILE__, __LINE__);
             cpu_error(&machine, "machine trapped at %04X", pc);
         }
+
+        if(pc == 0x336D) {
+            test_true(&tester, true, "Functional tests before BCD completed!");
+            break;
+        }
     }
 
     test_summary(&tester);
