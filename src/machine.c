@@ -1,6 +1,6 @@
 #include "machine.h"
 #include "stdio.h"
-#include "opcodes.h"
+#include "opcodes_6502.h"
 #include "debug.h"
 #include "disassembly.h"
 

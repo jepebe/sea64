@@ -14,6 +14,11 @@ static void relative_branch(Machine *m, bool should_branch) {
 }
 
 static void add(Machine *m, u8 value) {
+    if(m->cpu.P.D) {
+        cpu_error_marker(m, __FILE__, __LINE__);
+        cpu_error(m, "decimal mode not supported");
+    }
+
     u8 carry = m->cpu.P.C;
     u8 a = m->cpu.A;
     u16 result = a + value + carry;

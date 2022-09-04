@@ -11,7 +11,7 @@ set(SOURCES
         src/seaio.c
         src/cpu.c
         src/machine.c
-        src/opcodes.c
+        src/opcodes_6502.c
         src/instructions.c
         src/debug.c
         src/disassembly.c)

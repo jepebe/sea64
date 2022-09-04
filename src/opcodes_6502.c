@@ -1,4 +1,4 @@
-#include "opcodes.h"
+#include "opcodes_6502.h"
 #include "instructions.h"
 
 const Opcode opcodes[] = {

@@ -29,7 +29,7 @@ int main(void) {
 
         if(pc == 0x336D) {
             test_true(&tester, true, "Functional tests before BCD completed!");
-            break;
+            //break;
         }
     }
 

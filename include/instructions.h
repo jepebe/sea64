@@ -170,7 +170,7 @@ void ror(Machine *m, AddrMode addr_mode);
 // Operation: P↑ PC↑
 void rti(Machine *m, AddrMode addr_mode);
 
-// RTS - Return From Subroutme
+// RTS - Return From Subroutine
 // Operation: PC↑, PC + 1 → PC
 void rts(Machine *m, AddrMode addr_mode);
 
