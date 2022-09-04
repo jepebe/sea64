@@ -47,7 +47,24 @@ static inline double timespec_diff(struct timespec *a) {
     return t;
 }
 
-void test_false(Tester *tester, bool test_state, char *message) {
+void test_fail(Tester *tester, const char *message) {
+    u16 count = ++tester->count;
+    tester->fail++;
+    printf("%s  Test #%02d Error! %s", CROSS, count, message);
+    printf("%s\n", END_ANSI);
+}
+
+void test_success(Tester *tester, const char *message) {
+    u16 count = ++tester->count;
+
+    tester->success++;
+    if (message) {
+        printf("%s  Test #%02d OK! %s", CHECK, count, message);
+    }
+    printf("%s\n", END_ANSI);
+}
+
+void test_false(Tester *tester, bool test_state, const char *message) {
     u16 count = ++tester->count;
 
     if (!test_state) {
@@ -63,7 +80,7 @@ void test_false(Tester *tester, bool test_state, char *message) {
     printf("%s\n", END_ANSI);
 }
 
-void test_true(Tester *tester, bool test_state, char *message) {
+void test_true(Tester *tester, bool test_state, const char *message) {
     u16 count = ++tester->count;
 
     if (test_state) {
@@ -148,7 +165,7 @@ void test_str(Tester *tester, char *a, char *b, char *msg) {
     }
 }
 
-void test_section(char *name) {
+void test_section(const char *name) {
     printf("\n\x1b[33m[%s]\x1b[0m\n", name);
 }
 

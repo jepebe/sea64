@@ -141,8 +141,8 @@ const Opcode opcodes[] = {
 
         [0xD0] = {bne, Relative, "BNE"},
         [0xD1] = {cmp, ZeroPageIndirectYIndexed, "CMP"},
-        [0xD6] = {dec, XIndexedZeroPage, "DEC"},
         [0xD5] = {cmp, XIndexedZeroPage, "CMP"},
+        [0xD6] = {dec, XIndexedZeroPage, "DEC"},
         [0xD8] = {cld, Implied, "CLD"},
         [0xD9] = {cmp, YIndexedAbsolute, "CMP"},
         [0xDD] = {cmp, XIndexedAbsolute, "CMP"},

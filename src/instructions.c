@@ -198,15 +198,35 @@ void iny(Machine *m, AddrMode UNUSED addr_mode) {
     adjust_zero_and_negative_flag(m, m->cpu.Y);
 }
 
-void jmp(Machine *m, AddrMode UNUSED addr_mode) {
-    m->cpu.PC = machine_read_word_with_mode(m, addr_mode);
+void jmp(Machine *m, AddrMode addr_mode) {
+    u16 addr = machine_read_immediate_word(m);
+
+    switch (addr_mode) {
+        case Absolute: {
+            m->cpu.PC = addr;
+            break;
+        }
+        case AbsoluteIndirect: {
+            // The indirect jump instruction does not increment the page address
+            // when the indirect pointer crosses a page boundary. JMP ($xxFF) will
+            // fetch the address from $xxFF and $xx00.
+            u8 low = machine_read_byte(m, addr);
+            u8 high = machine_read_byte(m, (addr & 0xFF00) | ((addr + 1) & 0x00FF));
+            m->cpu.PC = (high << 8) | low;
+            break;
+        }
+        default:
+            cpu_error_marker(m, __FILE__, __LINE__);
+            cpu_error(m, "addressing mode %d not implemented", addr_mode);
+    }
 }
 
-void jsr(Machine *m, AddrMode addr_mode) {
-    u16 dst = machine_read_word_with_mode(m, addr_mode);
-    m->cpu.PC--;  // stack should contain the last address of the instruction
+void jsr(Machine *m, AddrMode UNUSED addr_mode) {
+    // This (probably) replicates the actual behavior of the cycles of the hardware
+    u8 low = machine_read_byte_with_mode(m, Immediate);
     machine_push_program_counter_on_stack(m);
-    m->cpu.PC = dst;
+    u8 high = machine_read_byte_with_mode(m, Immediate);
+    m->cpu.PC = (high << 8) | low;
 }
 
 void lda(Machine *m, AddrMode addr_mode) {

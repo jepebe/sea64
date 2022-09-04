@@ -114,28 +114,6 @@ u16 machine_read_immediate_word(Machine *machine) {
     return (high << 8) | low;
 }
 
-u16 machine_read_word_with_mode(Machine *machine, AddrMode mode) {
-    switch (mode) {
-        case Absolute: {
-            return machine_read_immediate_word(machine);
-        }
-        case AbsoluteIndirect: {
-            u16 addr = machine_read_immediate_word(machine);
-
-            // The indirect jump instruction does not increment the page address
-            // when the indirect pointer crosses a page boundary. JMP ($xxFF) will
-            // fetch the address from $xxFF and $xx00.
-            u8 low = machine_read_byte(machine, addr);
-            u16 page_bug_addr = (addr & 0xFF00) | ((addr & 0x00FF) + 1);
-            u8 high = machine_read_byte(machine, page_bug_addr);
-            return (high << 8) | low;
-        }
-        default:
-            cpu_error_marker(machine, __FILE__, __LINE__);
-            cpu_error(machine, "addressing mode %d not implemented", mode);
-    }
-}
-
 void machine_push_byte_on_stack(Machine *machine, u8 value) {
     u16 stack_pointer = 0x100 + machine->cpu.S;
     machine_write_byte(machine, stack_pointer, value);

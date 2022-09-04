@@ -82,3 +82,34 @@ void cpu_stack_contents(Machine *machine) {
 
     printf("\x1b[0m\n");
 }
+
+
+void error_marker(char *file, int line) {
+    printf("\x1b[0;33m");
+    printf("Note: %s:%d", file, line);
+    printf("\x1b[0m\n");
+}
+
+NO_RETURN void error(char *message, ...) {
+    va_list argp;
+    printf("\x1b[0;31m");
+
+    printf("Error: ");
+    va_start(argp, message);
+    vprintf(message, argp);
+    va_end(argp);
+    printf("\x1b[0m\n");
+
+    exit(1);
+}
+
+void warning(char *message, ...) {
+    va_list argp;
+    printf("\x1b[0;33m");
+
+    printf("Warning: ");
+    va_start(argp, message);
+    vprintf(message, argp);
+    va_end(argp);
+    printf("\x1b[0m\n");
+}

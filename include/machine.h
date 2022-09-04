@@ -21,8 +21,6 @@ void machine_write_byte(Machine *machine, u16 addr, u8 value);
 
 u8 machine_read_byte_with_mode(Machine *machine, AddrMode mode);
 
-u16 machine_read_word_with_mode(Machine *machine, AddrMode mode);
-
 void machine_write_byte_with_mode(Machine *machine, AddrMode mode, u8 value);
 
 void machine_push_byte_on_stack(Machine *machine, u8 value);
