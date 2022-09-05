@@ -14,11 +14,6 @@ static void relative_branch(Machine *m, bool should_branch) {
 }
 
 static void add(Machine *m, u8 value) {
-    if(m->cpu.P.D) {
-        cpu_error_marker(m, __FILE__, __LINE__);
-        cpu_error(m, "decimal mode not supported");
-    }
-
     u8 carry = m->cpu.P.C;
     u8 a = m->cpu.A;
     u16 result = a + value + carry;
@@ -30,9 +25,68 @@ static void add(Machine *m, u8 value) {
     m->cpu.A = result & 0xFF;
 }
 
+static void bcd_add(Machine *m, u8 value) {
+    u8 carry = m->cpu.P.C;
+    u8 a = m->cpu.A;
+
+    m->cpu.P.Z = ((a + value + carry) & 0xFF) == 0x00;
+
+    u8 low = (a & 0x0F) + (value & 0x0F) + carry;
+    u8 half_carry = 0;
+    if (low > 9) {
+        low = (low + 6) & 0x0F;
+        half_carry = 1;
+    }
+    u8 high = ((a & 0xF0) >> 4) + ((value & 0xF0) >> 4) + half_carry;
+
+    m->cpu.P.N = (high & 0x08) == 0x08;
+    u8 overflow = ((high << 4) ^ a) & ~(a ^ value);
+    m->cpu.P.V = (overflow & 0x80) == 0x80;
+
+    if (high > 9) {
+        high = (high + 6);
+    }
+
+    m->cpu.P.C = high > 0x09;
+    m->cpu.A = (high << 4) | low;
+}
+
+static void bcd_sub(Machine *m, u8 value) {
+    u8 borrow = !m->cpu.P.C;
+    u8 a = m->cpu.A;
+
+    u8 bin = a - value - borrow;
+    m->cpu.P.Z = (bin & 0xFF) == 0x00;
+
+    u8 low = (a & 0x0F) - (value & 0x0F) - borrow;
+    u8 half_borrow = 0;
+    if ((low & 0x10) == 0x10) {
+        low = (low - 6) & 0x0F;
+        half_borrow = 1;
+    }
+
+    u8 high = ((a & 0xF0) >> 4) - ((value & 0xF0) >> 4) - half_borrow;
+
+    m->cpu.P.N = (high & 0x08) == 0x08;
+    u8 overflow = (value ^ a) & ~(bin ^ value);
+    m->cpu.P.V = (overflow & 0x80) == 0x80;
+
+    m->cpu.P.C = 1;
+    if ((high & 0x10) == 0x10) {
+        high = (high - 6);
+        m->cpu.P.C = 0;
+    }
+
+    m->cpu.A = (high << 4) | low;
+}
+
 void adc(Machine *m, AddrMode addr_mode) {
     u8 value = machine_read_byte_with_mode(m, addr_mode);
-    add(m, value);
+    if (m->cpu.P.D) {
+        bcd_add(m, value);
+    } else {
+        add(m, value);
+    }
 }
 
 void and(Machine *m, AddrMode addr_mode) {
@@ -358,7 +412,11 @@ void rts(Machine *m, AddrMode UNUSED addr_mode) {
 
 void sbc(Machine *m, AddrMode addr_mode) {
     u8 value = machine_read_byte_with_mode(m, addr_mode);
-    add(m, ~value);
+    if (m->cpu.P.D) {
+        bcd_sub(m, value);
+    } else {
+        add(m, ~value);
+    }
 }
 
 void sec(Machine *m, AddrMode UNUSED addr_mode) {

@@ -22,34 +22,65 @@ void load_state(Machine *machine, ProcState *state) {
     }
 }
 
+static char flags_buffer_1[9];
+static char flags_buffer_2[9];
+
+static char *decode_flags(CPUFlags flags, char *buf) {
+    buf[0] = flags.N ? 'N' : '.';
+    buf[1] = flags.V ? 'V' : '.';
+    buf[2] = flags.U ? 'U' : '.';
+    buf[3] = flags.B ? 'B' : '.';
+    buf[4] = flags.D ? 'D' : '.';
+    buf[5] = flags.I ? 'I' : '.';
+    buf[6] = flags.Z ? 'Z' : '.';
+    buf[7] = flags.C ? 'C' : '.';
+    buf[8] = 0;
+    return buf;
+}
+
 bool compare_state_equal(Machine *machine, ProcState *state) {
+    bool equal = true;
     if (machine->cpu.PC != state->pc) {
         printf("PC $%04X != $%04X\n", machine->cpu.PC, state->pc);
-        return false;
-    } else if (machine->cpu.S != state->s) {
-        printf("S $%02X != $%02X\n", machine->cpu.S, state->s);
-        return false;
-    } else if (machine->cpu.A != state->a) {
-        printf("A ");
-        return false;
-    } else if (machine->cpu.X != state->x) {
-        printf("X ");
-        return false;
-    } else if (machine->cpu.Y != state->y) {
-        printf("Y ");
-        return false;
-    } else if (machine->cpu.P.status != state->p) {
-        printf("P ");
-        return false;
-    } else {
-        for (u8 i = 0; i < state->ram_size; ++i) {
-            if (machine->ram[state->ram[i].addr] != state->ram[i].value) {
-                printf("RAM %d ", i);
-                return false;
-            }
+        equal = false;
+    }
+    if (machine->cpu.S != state->s) {
+        printf("S 0x%02X != 0x%02X\n", machine->cpu.S, state->s);
+        equal = false;
+    }
+
+    if (machine->cpu.A != state->a) {
+        printf("A 0x%02X != 0x%02X\n", machine->cpu.A, state->a);
+        equal = false;
+    }
+
+    if (machine->cpu.X != state->x) {
+        printf("X 0x%02X != 0x%02X\n", machine->cpu.X, state->x);
+        equal = false;
+    }
+
+    if (machine->cpu.Y != state->y) {
+        printf("Y 0x%02X != 0x%02X\n", machine->cpu.Y, state->y);
+        equal = false;
+    }
+
+    if (machine->cpu.P.status != state->p) {
+        CPUFlags final_flags = {.status=state->p};
+        char *flags_m = decode_flags(machine->cpu.P, flags_buffer_1);
+        char *flags_f = decode_flags(final_flags, flags_buffer_2);
+        printf("P %s != %s A=%02X\n",flags_m, flags_f, machine->cpu.A);
+        equal = false;
+    }
+
+    for (u8 i = 0; i < state->ram_size; ++i) {
+        u16 ram_addr = state->ram[i].addr;
+        u8 ram_value = machine->ram[ram_addr];
+        if (ram_value != state->ram[i].value) {
+            printf("RAM [$%04X]=0x%02X != [%d]=0x%02X\n", ram_addr, ram_value, i, state->ram[i].value);
+            equal = false;
         }
     }
-    return true;
+    return equal;
 }
 
 char *addr_mode_name(AddrMode mode) {
@@ -99,23 +130,6 @@ int main(void) {
     clear_processor_tester(&proc_tester);
 
     for (u16 opc = 0x00; opc < 0xff; ++opc) {
-        if(opc == 0x61 || opc == 0x65 || opc == 0x69 || opc == 0x6D) {
-            continue;
-        }
-
-        if(opc == 0x71 || opc == 0x75 || opc == 0x79 || opc == 0x7D) {
-            continue;
-        }
-
-        if(opc == 0xE1 || opc == 0xE5 || opc == 0xE9 || opc == 0xED) {
-            continue;
-        }
-
-        if(opc == 0xF1 || opc == 0xF5 || opc == 0xF9 || opc == 0xFD) {
-            continue;
-        }
-
-
         Opcode opcode = fetch_opcode(opc);
         if (opcode.op_fn != NULL) {
             sprintf(path, "%s/%02x.json", path_prefix, opc);
@@ -157,6 +171,7 @@ int main(void) {
                             warning("test #%d failed - %s", proc_tester.test_count, proc_tester.proc_test.name);
                             warning("test failed at '%s:%d:%d'", path, error_line, error_loc);
                             failures++;
+                            break;
                         }
                     }
                 }
@@ -169,7 +184,7 @@ int main(void) {
                     warning("failure code '%d'", proc_tester.error);
 
                     test_fail(&tester, "Parsing error");
-                } else if(failures) {
+                } else if (failures) {
                     sprintf(name_buffer, "%s %s", opcode.name, addr_mode_name(opcode.addr_mode));
 
                     test_fail(&tester, name_buffer);

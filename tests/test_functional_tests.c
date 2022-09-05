@@ -27,9 +27,15 @@ int main(void) {
             cpu_error(&machine, "machine trapped at %04X", pc);
         }
 
+        pc = machine.cpu.PC;
         if(pc == 0x336D) {
             test_true(&tester, true, "Functional tests before BCD completed!");
             //break;
+        }
+
+        if(pc == 0x3469) {
+            test_true(&tester, true, "Functional tests BCD completed!");
+            break;
         }
     }
 
