@@ -12,6 +12,7 @@ Machine machine_create(void) {
 
 void machine_tick(Machine *machine) {
 //    u16 current_address = machine->cpu.PC;
+    machine->cycle_count = 0;
     u8 opcode_num = machine_read_byte(machine, machine->cpu.PC++);
     Opcode opcode = fetch_opcode(opcode_num);
 
@@ -29,15 +30,27 @@ void machine_tick(Machine *machine) {
 u8 machine_read_byte(Machine *machine, u16 addr) {
     u8 data = machine->ram[addr];
     machine->cpu.cycles++;
+
+    machine->cycles[machine->cycle_count].addr = addr;
+    machine->cycles[machine->cycle_count].value = data;
+    machine->cycles[machine->cycle_count].activity = READ_CYCLE;
+    machine->cycle_count++;
+
     return data;
 }
 
 void machine_write_byte(Machine *machine, u16 addr, u8 value) {
     machine->ram[addr] = value;
     machine->cpu.cycles++;
+
+    machine->cycles[machine->cycle_count].addr = addr;
+    machine->cycles[machine->cycle_count].value = value;
+    machine->cycles[machine->cycle_count].activity = WRITE_CYCLE;
+    machine->cycle_count++;
 }
 
 u16 machine_fetch_address(Machine *machine, AddrMode mode) {
+    machine->page_cross = false;
     u16 addr;
     switch (mode) {
         case Absolute: {
@@ -49,16 +62,24 @@ u16 machine_fetch_address(Machine *machine, AddrMode mode) {
             break;
         case XIndexedAbsolute: {
             addr = machine_read_immediate_word(machine);
+            u16 indexed_addr = addr + machine->cpu.X;
+            if ((addr & 0xFF00) != (indexed_addr & 0xFF00)) {
+                // extra cycle for crossing pages
+                machine_read_byte(machine, (addr & 0xFF00) | (indexed_addr & 0x00FF));
+                machine->page_cross = true;
+            }
             addr += machine->cpu.X;
             break;
         }
         case XIndexedZeroPage: {
             u8 zero_page_addr = machine_read_immediate_byte(machine);
+            machine_read_byte(machine, zero_page_addr);  // cycle correct behavior
             addr = (zero_page_addr + machine->cpu.X) & 0x00FF;
             break;
         }
         case XIndexedZeroPageIndirect: {
             u8 zero_page_addr = machine_read_immediate_byte(machine);
+            machine_read_byte(machine, zero_page_addr);  // cycle correct behavior
             zero_page_addr += machine->cpu.X;
             u8 low = machine_read_byte(machine, zero_page_addr & 0x00FF);
             u8 high = machine_read_byte(machine, (zero_page_addr + 1) & 0x00FF);
@@ -67,11 +88,18 @@ u16 machine_fetch_address(Machine *machine, AddrMode mode) {
         }
         case YIndexedAbsolute: {
             addr = machine_read_immediate_word(machine);
+            u16 indexed_addr = addr + machine->cpu.Y;
+            if ((addr & 0xFF00) != (indexed_addr & 0xFF00)) {
+                // extra cycle for crossing pages
+                machine_read_byte(machine, (addr & 0xFF00) | (indexed_addr & 0x00FF));
+                machine->page_cross = true;
+            }
             addr += machine->cpu.Y;
             break;
         }
         case YIndexedZeroPage: {
             u8 zero_page_addr = machine_read_immediate_byte(machine);
+            machine_read_byte(machine, zero_page_addr);  // cycle correct behavior
             addr = (zero_page_addr + machine->cpu.Y) & 0x00FF;
             break;
         }
@@ -84,7 +112,14 @@ u16 machine_fetch_address(Machine *machine, AddrMode mode) {
             u8 low = machine_read_byte(machine, zero_page_addr & 0x00FF);
             u8 high = machine_read_byte(machine, (zero_page_addr + 1) & 0x00FF);
             addr = (high << 8) | low;
-            addr += machine->cpu.Y;
+            u16 indexed_addr = addr + machine->cpu.Y;
+            if ((addr & 0xFF00) != (indexed_addr & 0xFF00)) {
+                // extra cycle for crossing pages
+                u16 adr = (addr & 0xFF00) | (indexed_addr & 0x00FF);
+                machine_read_byte(machine, adr); // cycle correct behavior
+                machine->page_cross = true;
+            }
+            addr = indexed_addr;
             break;
         }
         default:
@@ -137,4 +172,12 @@ void machine_pop_program_counter_from_stack(Machine *machine) {
     u8 low = machine_pop_byte_from_stack(machine);
     u8 high = machine_pop_byte_from_stack(machine);
     machine->cpu.PC = ((high << 8) | low);
+}
+
+void machine_push_cpu_flags_on_stack(Machine *machine) {
+    CPUFlags flags = machine->cpu.P;
+    flags.U = true;
+    flags.B = true;
+    machine_push_byte_on_stack(machine, flags.status);
+
 }

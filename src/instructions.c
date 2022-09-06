@@ -7,9 +7,15 @@ static inline void adjust_zero_and_negative_flag(Machine *m, u8 value) {
 }
 
 static void relative_branch(Machine *m, bool should_branch) {
-    u8 rel = machine_read_byte(m, m->cpu.PC++);
+    u8 rel = machine_read_immediate_byte(m);
     if (should_branch) {
-        m->cpu.PC = m->cpu.PC + (s8) rel;
+        machine_read_byte(m, m->cpu.PC); // cycle correct behavior - bus
+        u16 addr = m->cpu.PC + (s8) rel;
+        if ((addr & 0xFF00) != (m->cpu.PC & 0xFF00)) {
+            // extra cycle for crossing pages
+            machine_read_byte(m, (m->cpu.PC & 0xFF00) | (addr & 0x00FF)); // cycle correct behavior
+        }
+        m->cpu.PC = addr;
     }
 }
 
@@ -101,9 +107,14 @@ void asl(Machine *m, AddrMode addr_mode) {
     u8 value;
     if (addr_mode == Accumulator) {
         value = m->cpu.A;
+        machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     } else {
         addr = machine_fetch_address(m, addr_mode);
         value = machine_read_byte(m, addr);
+        if (addr_mode == XIndexedAbsolute && !m->page_cross) {
+            machine_read_byte(m, addr); // cycle correct behavior
+        }
+        machine_write_byte(m, addr, value);  // cycle correct behavior
     }
 
     m->cpu.P.C = (value & 0x80) == 0x80;
@@ -150,13 +161,14 @@ void bpl(Machine *m, AddrMode UNUSED addr_mode) {
 }
 
 void brk(Machine *m, AddrMode UNUSED addr_mode) {
+    // BRK is a two byte command
+    machine_read_immediate_byte(m); // cycle correct behavior
+
+    machine_push_program_counter_on_stack(m);
+    machine_push_cpu_flags_on_stack(m);
+
     u8 low = machine_read_byte(m, 0xFFFE);
     u8 high = machine_read_byte(m, 0xFFFF);
-
-    m->cpu.PC++; // BRK is a two byte command
-    machine_push_program_counter_on_stack(m);
-
-    php(m, Implied);
 
     m->cpu.P.I = true;
     m->cpu.PC = (high << 8) | low;
@@ -171,18 +183,22 @@ void bvs(Machine *m, AddrMode UNUSED addr_mode) {
 }
 
 void clc(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.P.C = 0;
 }
 
 void cld(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.P.D = 0;
 }
 
 void cli(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.P.I = 0;
 }
 
 void clv(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.P.V = 0;
 }
 
@@ -213,17 +229,25 @@ void cpy(Machine *m, AddrMode addr_mode) {
 void dec(Machine *m, AddrMode addr_mode) {
     u16 addr = machine_fetch_address(m, addr_mode);
     u8 value = machine_read_byte(m, addr);
+
+    if (addr_mode == XIndexedAbsolute && !m->page_cross) {
+        machine_read_byte(m, addr); // cycle correct behavior
+    }
+    machine_write_byte(m, addr, value); // cycle correct behavior
+
     value -= 1;
     adjust_zero_and_negative_flag(m, value);
     machine_write_byte(m, addr, value);
 }
 
 void dex(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.X--;
     adjust_zero_and_negative_flag(m, m->cpu.X);
 }
 
 void dey(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.Y--;
     adjust_zero_and_negative_flag(m, m->cpu.Y);
 }
@@ -237,17 +261,25 @@ void eor(Machine *m, AddrMode addr_mode) {
 void inc(Machine *m, AddrMode addr_mode) {
     u16 addr = machine_fetch_address(m, addr_mode);
     u8 value = machine_read_byte(m, addr);
+
+    if (addr_mode == XIndexedAbsolute && !m->page_cross) {
+        machine_read_byte(m, addr); // cycle correct behavior
+    }
+    machine_write_byte(m, addr, value); // cycle correct behavior
+
     value += 1;
     adjust_zero_and_negative_flag(m, value);
     machine_write_byte(m, addr, value);
 }
 
 void inx(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.X++;
     adjust_zero_and_negative_flag(m, m->cpu.X);
 }
 
 void iny(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.Y++;
     adjust_zero_and_negative_flag(m, m->cpu.Y);
 }
@@ -278,6 +310,7 @@ void jmp(Machine *m, AddrMode addr_mode) {
 void jsr(Machine *m, AddrMode UNUSED addr_mode) {
     // This (probably) replicates the actual behavior of the cycles of the hardware
     u8 low = machine_read_byte_with_mode(m, Immediate);
+    machine_read_byte(m, 0x0100 | m->cpu.S); // cycle correct behavior
     machine_push_program_counter_on_stack(m);
     u8 high = machine_read_byte_with_mode(m, Immediate);
     m->cpu.PC = (high << 8) | low;
@@ -306,9 +339,14 @@ void lsr(Machine *m, AddrMode addr_mode) {
     u8 value;
     if (addr_mode == Accumulator) {
         value = m->cpu.A;
+        machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     } else {
         addr = machine_fetch_address(m, addr_mode);
         value = machine_read_byte(m, addr);
+        if (addr_mode == XIndexedAbsolute && !m->page_cross) {
+            machine_read_byte(m, addr); // cycle correct behavior
+        }
+        machine_write_byte(m, addr, value); // cycle correct behavior
     }
 
     m->cpu.P.C = (value & 0x01) == 0x01;
@@ -323,6 +361,7 @@ void lsr(Machine *m, AddrMode addr_mode) {
 }
 
 void nop(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.cycles++;
 }
 
@@ -333,22 +372,25 @@ void ora(Machine *m, AddrMode addr_mode) {
 }
 
 void pha(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     machine_push_byte_on_stack(m, m->cpu.A);
 }
 
 void php(Machine *m, AddrMode UNUSED addr_mode) {
-    CPUFlags flags = m->cpu.P;
-    flags.U = true;
-    flags.B = true;
-    machine_push_byte_on_stack(m, flags.status);
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
+    machine_push_cpu_flags_on_stack(m);
 }
 
 void pla(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
+    machine_read_byte(m, 0x0100 | m->cpu.S); // cycle correct behavior
     m->cpu.A = machine_pop_byte_from_stack(m);
     adjust_zero_and_negative_flag(m, m->cpu.A);
 }
 
 void plp(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
+    machine_read_byte(m, 0x0100 | m->cpu.S); // cycle correct behavior
     m->cpu.P.status = machine_pop_byte_from_stack(m);
     m->cpu.P.U = true;
     m->cpu.P.B = false;
@@ -359,9 +401,14 @@ void rol(Machine *m, AddrMode addr_mode) {
     u8 value;
     if (addr_mode == Accumulator) {
         value = m->cpu.A;
+        machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     } else {
         addr = machine_fetch_address(m, addr_mode);
         value = machine_read_byte(m, addr);
+        if (addr_mode == XIndexedAbsolute && !m->page_cross) {
+            machine_read_byte(m, addr); // cycle correct behavior
+        }
+        machine_write_byte(m, addr, value);  // cycle correct behavior
     }
 
     u8 carry = m->cpu.P.C;
@@ -382,9 +429,14 @@ void ror(Machine *m, AddrMode addr_mode) {
     u8 value;
     if (addr_mode == Accumulator) {
         value = m->cpu.A;
+        machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     } else {
         addr = machine_fetch_address(m, addr_mode);
         value = machine_read_byte(m, addr);
+        if (addr_mode == XIndexedAbsolute && !m->page_cross) {
+            machine_read_byte(m, addr); // cycle correct behavior
+        }
+        machine_write_byte(m, addr, value); // cycle correct behavior
     }
 
     u8 carry = m->cpu.P.C;
@@ -406,7 +458,10 @@ void rti(Machine *m, AddrMode UNUSED addr_mode) {
 }
 
 void rts(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
+    machine_read_byte(m, 0x0100 | m->cpu.S); // cycle correct behavior
     machine_pop_program_counter_from_stack(m);
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.PC++;
 }
 
@@ -420,19 +475,37 @@ void sbc(Machine *m, AddrMode addr_mode) {
 }
 
 void sec(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.P.C = 1;
 }
 
 void sed(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.P.D = 1;
 }
 
 void sei(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.P.I = 1;
 }
 
 void sta(Machine *m, AddrMode addr_mode) {
-    machine_write_byte_with_mode(m, addr_mode, m->cpu.A);
+    u16 addr = machine_fetch_address(m, addr_mode);
+
+    switch (addr_mode) {
+        case ZeroPageIndirectYIndexed:
+        case XIndexedAbsolute:
+        case YIndexedAbsolute: {
+            if (!m->page_cross) {
+                machine_read_byte(m, addr); // cycle correct behavior
+                break;
+            }
+        }
+        default:
+            break;
+    }
+
+    machine_write_byte(m, addr, m->cpu.A); // cycle correct behavior
 }
 
 void stx(Machine *m, AddrMode addr_mode) {
@@ -444,6 +517,7 @@ void sty(Machine *m, AddrMode addr_mode) {
 }
 
 void tax(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.X = m->cpu.A;
     m->cpu.cycles++;
 
@@ -451,6 +525,7 @@ void tax(Machine *m, AddrMode UNUSED addr_mode) {
 }
 
 void tay(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.Y = m->cpu.A;
     m->cpu.cycles++;
 
@@ -458,22 +533,26 @@ void tay(Machine *m, AddrMode UNUSED addr_mode) {
 }
 
 void tsx(Machine *m, UNUSED AddrMode addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.X = m->cpu.S;
     adjust_zero_and_negative_flag(m, m->cpu.X);
 }
 
 void txa(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.A = m->cpu.X;
     m->cpu.cycles++;
     adjust_zero_and_negative_flag(m, m->cpu.X);
 }
 
 void txs(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.S = m->cpu.X;
     m->cpu.cycles++;
 }
 
 void tya(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.A = m->cpu.Y;
     m->cpu.cycles++;
 

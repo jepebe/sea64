@@ -236,14 +236,14 @@ static bool parse_cycles(ProcTester *proc_tester) {
             return false;
         }
         skip_token(proc_tester);
-        proc_test->cycles[proc_test->cycle_count].data.addr = parse_u16(proc_tester);
+        proc_test->cycles[proc_test->cycle_count].addr = parse_u16(proc_tester);
 
         if (!is_comma(proc_tester)) {
             proc_tester->error = ProcessorTesterExpectedTokenComma;
             return false;
         }
         skip_token(proc_tester);
-        proc_test->cycles[proc_test->cycle_count].data.value = (u8) parse_u16(proc_tester);
+        proc_test->cycles[proc_test->cycle_count].value = (u8) parse_u16(proc_tester);
 
         if (!is_comma(proc_tester)) {
             proc_tester->error = ProcessorTesterExpectedTokenComma;
@@ -258,9 +258,9 @@ static bool parse_cycles(ProcTester *proc_tester) {
         }
 
         if(string_view_is_equal(&activity, "read")) {
-            proc_test->cycles[proc_test->cycle_count].rw = READ;
+            proc_test->cycles[proc_test->cycle_count].activity = READ_CYCLE;
         } else if(string_view_is_equal(&activity, "write")) {
-            proc_test->cycles[proc_test->cycle_count].rw = WRITE;
+            proc_test->cycles[proc_test->cycle_count].activity = WRITE_CYCLE;
         } else {
             proc_tester->error = ProcessorTesterUnexpectedToken;
             return false;

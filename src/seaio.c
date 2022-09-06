@@ -6,7 +6,7 @@
 
 
 Binary read_binary(const char *path) {
-    if(access(path, F_OK) != 0) {
+    if (access(path, F_OK) != 0) {
         printf("File '%s' does not exist!\n", path);
         exit(1);
     }

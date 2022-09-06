@@ -1,6 +1,7 @@
 #pragma once
 
 #include "seatypes.h"
+#include "machine.h"
 
 typedef struct {
     u16 addr;
@@ -18,22 +19,12 @@ typedef struct {
     u8 ram_size;
 } ProcState;
 
-typedef enum {
-    READ,
-    WRITE
-} CycleActivity;
-
-typedef struct {
-    RamData data;
-    CycleActivity rw;
-} Cycle;
-
 typedef struct {
     char *name;
     ProcState initial;
     ProcState final;
     u8 cycle_count;
-    Cycle cycles[10];
+    CycleInfo cycles[10];
 
 } ProcTest;
 
