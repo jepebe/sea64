@@ -54,7 +54,7 @@ typedef struct {
 } ProcTester;
 
 typedef struct {
-    char* string;
+    char *string;
     u64 size;
 } StringView;
 

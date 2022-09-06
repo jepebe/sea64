@@ -257,9 +257,9 @@ static bool parse_cycles(ProcTester *proc_tester) {
             return false;
         }
 
-        if(string_view_is_equal(&activity, "read")) {
+        if (string_view_is_equal(&activity, "read")) {
             proc_test->cycles[proc_test->cycle_count].activity = READ_CYCLE;
-        } else if(string_view_is_equal(&activity, "write")) {
+        } else if (string_view_is_equal(&activity, "write")) {
             proc_test->cycles[proc_test->cycle_count].activity = WRITE_CYCLE;
         } else {
             proc_tester->error = ProcessorTesterUnexpectedToken;

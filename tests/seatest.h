@@ -5,9 +5,9 @@
 #include <string.h>
 #include "seatypes.h"
 
-static char* CHECK = "\x1b[0;32m\u2705";
-static char* CROSS = "\x1b[0;31m\u274C";
-static char* END_ANSI = "\x1b[0m";
+static char *CHECK = "\x1b[0;32m\u2705";
+static char *CROSS = "\x1b[0;31m\u274C";
+static char *END_ANSI = "\x1b[0m";
 
 typedef struct {
     char *name;

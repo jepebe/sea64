@@ -12,7 +12,7 @@ int main(void) {
     Machine machine = machine_create();
 
     Binary data = read_binary("../tests/bins/6502_functional_test.bin");
-    for(size_t i = 0; i < data.size; ++i) {
+    for (size_t i = 0; i < data.size; ++i) {
         machine.ram[i] = data.data[i];
     }
 
@@ -22,18 +22,18 @@ int main(void) {
         u16 pc = machine.cpu.PC;
         machine_tick(&machine);
 
-        if(pc == machine.cpu.PC) {
+        if (pc == machine.cpu.PC) {
             cpu_error_marker(&machine, __FILE__, __LINE__);
             cpu_error(&machine, "machine trapped at %04X", pc);
         }
 
         pc = machine.cpu.PC;
-        if(pc == 0x336D) {
+        if (pc == 0x336D) {
             test_true(&tester, true, "Functional tests before BCD completed!");
             //break;
         }
 
-        if(pc == 0x3469) {
+        if (pc == 0x3469) {
             test_true(&tester, true, "Functional tests BCD completed!");
             break;
         }

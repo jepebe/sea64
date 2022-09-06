@@ -70,7 +70,7 @@ bool compare_cycles_equals(Machine *machine, ProcTest *proc_test) {
             CycleActivity r_cyc_act = machine->cycles[i].activity;
             char *r_act = r_cyc_act == WRITE_CYCLE ? "Write" : "Read";
 
-            if(i < fail_index) {
+            if (i < fail_index) {
                 warning("#%d  $%04X,%02X %s == $%04X,%02X %s", i + 1, e_addr, e_value, e_act, r_addr, r_value, r_act);
             } else {
                 warning("#%d  $%04X,%02X %s != \x1b[0;31m$%04X,%02X %s", i + 1, e_addr, e_value, e_act, r_addr, r_value, r_act);
