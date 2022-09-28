@@ -34,7 +34,7 @@ int main(void) {
         }
 
         if (pc == 0x3469) {
-            test_true(&tester, true, "Functional tests BCD completed!");
+            test_true(&tester, true, "Functional tests with BCD completed!");
             break;
         }
     }
