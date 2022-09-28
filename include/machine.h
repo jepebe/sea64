@@ -24,6 +24,10 @@ typedef struct {
 
 Machine machine_create(void);
 
+void machine_irq(Machine *machine);
+
+void machine_nmi(Machine *machine);
+
 void machine_tick(Machine *machine);
 
 u8 machine_read_immediate_byte(Machine *machine);

@@ -2,7 +2,6 @@
 #include "stdio.h"
 #include "opcodes_6502.h"
 #include "debug.h"
-#include "disassembly.h"
 
 Machine machine_create(void) {
     Machine result = {0};
@@ -11,14 +10,12 @@ Machine machine_create(void) {
 }
 
 void machine_tick(Machine *machine) {
-//    u16 current_address = machine->cpu.PC;
     machine->cycle_count = 0;
     u8 opcode_num = machine_read_byte(machine, machine->cpu.PC++);
     Opcode opcode = fetch_opcode(opcode_num);
 
     if (opcode.op_fn != NULL) {
         opcode.op_fn(machine, opcode.addr_mode);
-//        disassemble_instruction(machine, current_address, opcode_num, opcode);
     } else {
         machine->cpu.PC--; // revert to the address that has the erroneous opcode
         cpu_error_marker(machine, __FILE__, __LINE__);
@@ -180,4 +177,34 @@ void machine_push_cpu_flags_on_stack(Machine *machine) {
     flags.B = true;
     machine_push_byte_on_stack(machine, flags.status);
 
+}
+
+void machine_irq(Machine *machine) {
+    if (!machine->cpu.P.I) {
+        machine_push_program_counter_on_stack(machine);
+        machine->cpu.P.B = false;
+        machine->cpu.P.U = true;
+        machine_push_byte_on_stack(machine, machine->cpu.P.status);
+
+        machine->cpu.P.I = true;
+
+        u8 low = machine_read_byte(machine, 0xFFFE);
+        u8 high = machine_read_byte(machine, 0xFFFF);
+        u16 addr = (high << 8) | low;
+        machine->cpu.PC = addr;
+    }
+}
+
+void machine_nmi(Machine *machine) {
+    machine_push_program_counter_on_stack(machine);
+    machine->cpu.P.B = false;
+    machine->cpu.P.U = true;
+    machine_push_byte_on_stack(machine, machine->cpu.P.status);
+
+    machine->cpu.P.I = true;
+
+    u8 low = machine_read_byte(machine, 0xFFFA);
+    u8 high = machine_read_byte(machine, 0xFFFB);
+    u16 addr = (high << 8) | low;
+    machine->cpu.PC = addr;
 }

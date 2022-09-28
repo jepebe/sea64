@@ -40,6 +40,10 @@ add_executable(test_functional_tests tests/test_functional_tests.c)
 target_link_libraries(test_functional_tests sea64)
 add_test("Klaus's Functional Tests" test_functional_tests)
 
+add_executable(test_interrupt_tests tests/test_interrupt_tests.c)
+target_link_libraries(test_interrupt_tests sea64)
+add_test("Klaus's Interrupt Tests" test_interrupt_tests)
+
 add_executable(test_processor_tests tests/test_processor_tests.c tests/proc_tester.c tests/proc_tester.c)
 target_link_libraries(test_processor_tests sea64)
 add_test("Processor Tests" test_processor_tests)
