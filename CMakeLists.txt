@@ -23,6 +23,9 @@ add_executable(sea64bin src/main.c)
 target_link_libraries(sea64bin sea64)
 set_target_properties(sea64bin PROPERTIES OUTPUT_NAME sea64)
 
+add_executable(hex2bin tools/hex2bin.c)
+target_link_libraries(hex2bin sea64)
+
 enable_testing()
 
 add_executable(test_sample tests/test_sample.c)
