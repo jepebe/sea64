@@ -2,13 +2,15 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
+#include "seaio.h"
 #include "proc_tester.h"
 #include "debug.h"
 
 void read_processor_test(ProcTester *proc_tester, char *path) {
     if (access(path, F_OK) != 0) {
-        printf("File '%s' does not exist!\n", path);
+        warning("File '%s' does not exist!\n", path);
         proc_tester->error = ProcessorTesterFileError;
         return;
     }
@@ -16,7 +18,7 @@ void read_processor_test(ProcTester *proc_tester, char *path) {
     FILE *fd = fopen(path, "rb");
 
     if (!fd) {
-        perror("fopen");
+        warning("Could not open file '%s': %s\n", path, strerror(errno));
         proc_tester->error = ProcessorTesterFileError;
         return;
     }
@@ -31,12 +33,15 @@ void read_processor_test(ProcTester *proc_tester, char *path) {
 
     if (read < proc_tester->buffer_size) {
         if (ferror(fd)) {
-            perror("fopen");
+            warning("Failed to read file '%s': %s\n", path, strerror(errno));
             proc_tester->error = ProcessorTesterFileError;
             return;
         }
     }
-    fclose(fd);
+
+    if(fclose(fd) != 0) {
+        warning("Failed to close file '%s': %s\n", path, strerror(errno));
+    }
 
     proc_tester->cursor = 0;
     proc_tester->test_count = 0;

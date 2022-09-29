@@ -4,6 +4,29 @@
 #include <unistd.h>
 #include "seaio.h"
 
+NO_RETURN void error(char *message, ...) {
+    va_list argp;
+    printf("\x1b[0;31m");
+
+    printf("Error: ");
+    va_start(argp, message);
+    vprintf(message, argp);
+    va_end(argp);
+    printf("\x1b[0m\n");
+
+    exit(1);
+}
+
+void warning(char *message, ...) {
+    va_list argp;
+    printf("\x1b[0;33m");
+
+    printf("Warning: ");
+    va_start(argp, message);
+    vprintf(message, argp);
+    va_end(argp);
+    printf("\x1b[0m\n");
+}
 
 Binary read_binary(const char *path) {
     if (access(path, F_OK) != 0) {

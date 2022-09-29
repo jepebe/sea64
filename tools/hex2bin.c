@@ -3,33 +3,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-#include <stdarg.h>
 #include "seaio.h"
 #include "seatypes.h"
-
-NO_RETURN void error(char *message, ...) {
-    va_list argp;
-    printf("\x1b[0;31m");
-
-    printf("Error: ");
-    va_start(argp, message);
-    vprintf(message, argp);
-    va_end(argp);
-    printf("\x1b[0m\n");
-
-    exit(1);
-}
-
-void warning(char *message, ...) {
-    va_list argp;
-    printf("\x1b[0;33m");
-
-    printf("Warning: ");
-    va_start(argp, message);
-    vprintf(message, argp);
-    va_end(argp);
-    printf("\x1b[0m\n");
-}
 
 
 bool process_record(FILE *hex, FILE *bin, size_t line);

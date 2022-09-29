@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include "seaio.h"
 #include "seatest.h"
 #include "machine.h"
 #include "opcodes_6502.h"

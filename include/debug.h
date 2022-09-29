@@ -9,7 +9,3 @@ void cpu_stack_contents(Machine *machine);
 void cpu_instruction_context(Machine *machine);
 
 void error_marker(char *file, int line);
-
-void error(char *message, ...);
-
-void warning(char *message, ...);
