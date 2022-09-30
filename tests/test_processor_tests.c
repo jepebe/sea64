@@ -192,9 +192,9 @@ int main(void) {
     for (u16 opc = 0x00; opc < 0xff; ++opc) {
         Opcode opcode = fetch_opcode(opc);
         if (opcode.op_fn != NULL) {
-            sprintf(path_buffer, "%s/%02x.json", path_prefix, opc);
+            sprintf(path_buffer, "%s/%02x.bin", path_prefix, opc);
 
-            read_processor_test(&proc_tester, path_buffer);
+            read_processor_tests(&proc_tester, path_buffer);
             if (proc_tester.error != ProcessorTesterOK) {
                 error_marker(__FILE__, __LINE__);
                 warning("failed to open '%s'", path_buffer);
@@ -206,7 +206,7 @@ int main(void) {
                 u64 tests = 0;
                 u64 failures = 0;
                 while (!error) {
-                    parse_next_processor_test(&proc_tester);
+                    read_next_processor_test(&proc_tester);
 
                     if (proc_tester.error == ProcessorTesterEOF) {
                         break; // done

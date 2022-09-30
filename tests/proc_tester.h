@@ -25,20 +25,11 @@ typedef struct {
     ProcState final;
     u8 cycle_count;
     CycleInfo cycles[10];
-
 } ProcTest;
 
 typedef enum {
     ProcessorTesterOK,
     ProcessorTesterFileError,
-    ProcessorTesterExpectedTokenOpenBracket,
-    ProcessorTesterExpectedTokenClosedBracket,
-    ProcessorTesterExpectedTokenOpenBrace,
-    ProcessorTesterExpectedTokenQuotationMark,
-    ProcessorTesterExpectedTokenColon,
-    ProcessorTesterExpectedTokenComma,
-    ProcessorTesterExpectedTokenCommaOrClosedBrace,
-    ProcessorTesterUnexpectedToken,
     ProcessorTesterEOF,
 } Error;
 
@@ -53,13 +44,8 @@ typedef struct {
     u64 error_line;
 } ProcTester;
 
-typedef struct {
-    char *string;
-    u64 size;
-} StringView;
-
-void read_processor_test(ProcTester *proc_tester, char *path);
+void read_processor_tests(ProcTester *proc_tester, char *path);
 
 void clear_processor_tester(ProcTester *proc_tester);
 
-bool parse_next_processor_test(ProcTester *proc_tester);
+bool read_next_processor_test(ProcTester *proc_tester);
