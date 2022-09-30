@@ -19,6 +19,21 @@ static void relative_branch(Machine *m, bool should_branch) {
     }
 }
 
+static inline void page_cross_behavior(Machine *m, AddrMode addr_mode, u16 addr) {
+    switch (addr_mode) {
+        case ZeroPageIndirectYIndexed:
+        case XIndexedAbsolute:
+        case YIndexedAbsolute: {
+            if (!m->page_cross) {
+                machine_read_byte(m, addr); // cycle correct behavior
+                break;
+            }
+        }
+        default:
+            break;
+    }
+}
+
 static void add(Machine *m, u8 value) {
     u8 carry = m->cpu.P.C;
     u8 a = m->cpu.A;
@@ -111,9 +126,7 @@ void asl(Machine *m, AddrMode addr_mode) {
     } else {
         addr = machine_fetch_address(m, addr_mode);
         value = machine_read_byte(m, addr);
-        if (addr_mode == XIndexedAbsolute && !m->page_cross) {
-            machine_read_byte(m, addr); // cycle correct behavior
-        }
+        page_cross_behavior(m, addr_mode, addr);
         machine_write_byte(m, addr, value);  // cycle correct behavior
     }
 
@@ -230,9 +243,7 @@ void dec(Machine *m, AddrMode addr_mode) {
     u16 addr = machine_fetch_address(m, addr_mode);
     u8 value = machine_read_byte(m, addr);
 
-    if (addr_mode == XIndexedAbsolute && !m->page_cross) {
-        machine_read_byte(m, addr); // cycle correct behavior
-    }
+    page_cross_behavior(m, addr_mode, addr);
     machine_write_byte(m, addr, value); // cycle correct behavior
 
     value -= 1;
@@ -262,9 +273,7 @@ void inc(Machine *m, AddrMode addr_mode) {
     u16 addr = machine_fetch_address(m, addr_mode);
     u8 value = machine_read_byte(m, addr);
 
-    if (addr_mode == XIndexedAbsolute && !m->page_cross) {
-        machine_read_byte(m, addr); // cycle correct behavior
-    }
+    page_cross_behavior(m, addr_mode, addr);
     machine_write_byte(m, addr, value); // cycle correct behavior
 
     value += 1;
@@ -343,9 +352,7 @@ void lsr(Machine *m, AddrMode addr_mode) {
     } else {
         addr = machine_fetch_address(m, addr_mode);
         value = machine_read_byte(m, addr);
-        if (addr_mode == XIndexedAbsolute && !m->page_cross) {
-            machine_read_byte(m, addr); // cycle correct behavior
-        }
+        page_cross_behavior(m, addr_mode, addr);
         machine_write_byte(m, addr, value); // cycle correct behavior
     }
 
@@ -405,9 +412,7 @@ void rol(Machine *m, AddrMode addr_mode) {
     } else {
         addr = machine_fetch_address(m, addr_mode);
         value = machine_read_byte(m, addr);
-        if (addr_mode == XIndexedAbsolute && !m->page_cross) {
-            machine_read_byte(m, addr); // cycle correct behavior
-        }
+        page_cross_behavior(m, addr_mode, addr);
         machine_write_byte(m, addr, value);  // cycle correct behavior
     }
 
@@ -433,9 +438,7 @@ void ror(Machine *m, AddrMode addr_mode) {
     } else {
         addr = machine_fetch_address(m, addr_mode);
         value = machine_read_byte(m, addr);
-        if (addr_mode == XIndexedAbsolute && !m->page_cross) {
-            machine_read_byte(m, addr); // cycle correct behavior
-        }
+        page_cross_behavior(m, addr_mode, addr);
         machine_write_byte(m, addr, value); // cycle correct behavior
     }
 
@@ -492,18 +495,7 @@ void sei(Machine *m, AddrMode UNUSED addr_mode) {
 void sta(Machine *m, AddrMode addr_mode) {
     u16 addr = machine_fetch_address(m, addr_mode);
 
-    switch (addr_mode) {
-        case ZeroPageIndirectYIndexed:
-        case XIndexedAbsolute:
-        case YIndexedAbsolute: {
-            if (!m->page_cross) {
-                machine_read_byte(m, addr); // cycle correct behavior
-                break;
-            }
-        }
-        default:
-            break;
-    }
+    page_cross_behavior(m, addr_mode, addr);
 
     machine_write_byte(m, addr, m->cpu.A); // cycle correct behavior
 }
