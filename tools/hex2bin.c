@@ -7,68 +7,9 @@
 #include "seatypes.h"
 
 
-bool process_record(FILE *hex, FILE *bin, size_t line);
-
-void check_record_marker(FILE *hex, size_t line);
-
-u8 parse_byte(FILE *hex, size_t line);
-
-u16 parse_load_address(FILE *p_file, size_t line);
-
-char *basename(char *path, char *default_basename) {
-    char *name = strrchr(path, '/');
-
-    // check for at least one char in string
-    if (!name && !(name + 1)) {
-        return default_basename;
-    }
-    return name + 1;
-}
-
-void usage(char *program) {
-    char *prog_name = basename(program, "basename");
-    printf("Usage: %s <intel_hex_file> <output_bin_file>\n", prog_name);
-}
-
-int main(int argc, char *argv[argc]) {
-    if (argc < 3) {
-        usage(argv[0]);
-        exit(1);
-    }
-
-    char *hex_path = argv[1];
-    char *bin_path = argv[2];
-
-    if (access(hex_path, F_OK) != 0) {
-        error("File '%s' does not exist: %s\n", hex_path, strerror(errno));
-    }
-
-    FILE *hex_file = fopen(hex_path, "rb");
-
-    if (!hex_file) {
-        error("Could not open file '%s': %s\n", hex_path, strerror(errno));
-    }
-
-    FILE *bin_file = fopen(bin_path, "wb");
-
-    if (!bin_file) {
-        error("Could not open file '%s': %s\n", bin_path, strerror(errno));
-    }
-
-    size_t line = 0;
-    while (process_record(hex_file, bin_file, line)) {
-        line++;
-    }
-
-    if (fclose(hex_file) != 0) {
-        warning("Failed to close file '%s': %s\n", hex_path, strerror(errno));
-    }
-
-    if (fclose(bin_file) != 0) {
-        warning("Failed to close file '%s': %s\n", bin_path, strerror(errno));
-    }
-
-}
+// This tool converts Intel HEX format into binary
+// The main purpose is to convert the output from the AS65 assembler used to compile
+// the tests provided by https://github.com/Klaus2m5/6502_65C02_functional_tests
 
 void check_record_marker(FILE *hex, size_t line) {
     char marker;
@@ -141,10 +82,60 @@ bool process_record(FILE *hex, FILE *bin, size_t line) {
         error("Checksum failed at line %zu, %02X != %02X", record_type, line, checksum, sum);
     }
 
-//    printf("Record length 0x%02X\n", record_length);
-//    printf("Load address $%04X\n", load_address);
-//    printf("Record type 0x%02X\n", record_type);
-//    printf("Checksum 0x%02X == 0x%02X\n", checksum, sum);
-
     return record_type != 1; // end of file record
+}
+
+char *basename(char *path, char *default_basename) {
+    char *name = strrchr(path, '/');
+
+    // check for at least one char in string
+    if (!name && !(name + 1)) {
+        return default_basename;
+    }
+    return name + 1;
+}
+
+void usage(char *program) {
+    char *prog_name = basename(program, "basename");
+    printf("Usage: %s <intel_hex_file> <output_bin_file>\n", prog_name);
+}
+
+int main(int argc, char *argv[argc]) {
+    if (argc < 3) {
+        usage(argv[0]);
+        exit(1);
+    }
+
+    char *hex_path = argv[1];
+    char *bin_path = argv[2];
+
+    if (access(hex_path, F_OK) != 0) {
+        error("File '%s' does not exist: %s\n", hex_path, strerror(errno));
+    }
+
+    FILE *hex_file = fopen(hex_path, "rb");
+
+    if (!hex_file) {
+        error("Could not open file '%s': %s\n", hex_path, strerror(errno));
+    }
+
+    FILE *bin_file = fopen(bin_path, "wb");
+
+    if (!bin_file) {
+        error("Could not open file '%s': %s\n", bin_path, strerror(errno));
+    }
+
+    size_t line = 0;
+    while (process_record(hex_file, bin_file, line)) {
+        line++;
+    }
+
+    if (fclose(hex_file) != 0) {
+        warning("Failed to close file '%s': %s\n", hex_path, strerror(errno));
+    }
+
+    if (fclose(bin_file) != 0) {
+        warning("Failed to close file '%s': %s\n", bin_path, strerror(errno));
+    }
+
 }
