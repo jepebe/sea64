@@ -9,6 +9,8 @@ NO_RETURN void error(char *message, ...);
 
 void warning(char *message, ...);
 
+void error_marker(char *file, int line);
+
 typedef struct {
     const char *path;
     size_t size;
