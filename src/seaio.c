@@ -28,6 +28,12 @@ void warning(char *message, ...) {
     printf("\x1b[0m\n");
 }
 
+void error_marker(char *file, int line) {
+    printf("\x1b[0;33m");
+    printf("Note: %s:%d", file, line);
+    printf("\x1b[0m\n");
+}
+
 Binary read_binary(const char *path) {
     if (access(path, F_OK) != 0) {
         printf("File '%s' does not exist!\n", path);
