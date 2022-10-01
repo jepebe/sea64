@@ -25,7 +25,7 @@ int main(void) {
     while (true) {
         u16 pc = machine.cpu.PC;
         u8 opcode_num = machine.ram[pc];
-        Opcode opcode = fetch_opcode(opcode_num);
+        Opcode opcode = fetch_opcode(opcode_num, MOS6502);
 
         machine_tick(&machine);
 

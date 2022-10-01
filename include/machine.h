@@ -17,12 +17,15 @@ typedef struct {
 typedef struct {
     CPU cpu;
     u8 ram[0x10000];
+    bool halt;
     bool page_cross;
     u8 cycle_count;
     CycleInfo cycles[10];
 } Machine;
 
 Machine machine_create(void);
+
+void machine_halt(Machine *machine);
 
 void machine_irq(Machine *machine);
 
