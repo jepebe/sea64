@@ -269,6 +269,13 @@ void eor(Machine *m, AddrMode addr_mode) {
     adjust_zero_and_negative_flag(m, m->cpu.A);
 }
 
+void hlt(Machine *m, AddrMode UNUSED addr_mode) {
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
+    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
+    m->cpu.PC--; // cycle correct behavior
+    machine_halt(m);
+}
+
 void inc(Machine *m, AddrMode addr_mode) {
     u16 addr = machine_fetch_address(m, addr_mode);
     u8 value = machine_read_byte(m, addr);
@@ -490,6 +497,20 @@ void sed(Machine *m, AddrMode UNUSED addr_mode) {
 void sei(Machine *m, AddrMode UNUSED addr_mode) {
     machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.P.I = 1;
+}
+
+void slo(Machine *m, AddrMode addr_mode) {
+    u16 addr = machine_fetch_address(m, addr_mode);
+    u8 value = machine_read_byte(m, addr);
+    page_cross_behavior(m, addr_mode, addr);
+    machine_write_byte(m, addr, value);  // cycle correct behavior
+
+    m->cpu.P.C = (value & 0x80) == 0x80;
+    value = value << 1;
+    m->cpu.A = m->cpu.A | value;
+    adjust_zero_and_negative_flag(m, m->cpu.A);
+
+    machine_write_byte(m, addr, value);
 }
 
 void sta(Machine *m, AddrMode addr_mode) {

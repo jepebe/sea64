@@ -32,6 +32,11 @@ typedef union {
     };
 } CPUFlags;
 
+typedef enum {
+    MOS6502 = 0,
+    MOS6502EXT,
+} CPUType;
+
 typedef struct {
     u8 A; // Accumulator
     u8 X; // X Index Register
@@ -42,6 +47,7 @@ typedef struct {
 
     u64 cycles;     // Cycle count
     u64 tick_count; // number of opcodes processed
+    CPUType cpu_type;
 } CPU;
 
 void cpu_reset(CPU *cpu);

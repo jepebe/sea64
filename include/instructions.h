@@ -98,6 +98,10 @@ void dey(Machine *m, AddrMode addr_mode);
 // Operation: A ⊻ M → A
 void eor(Machine *m, AddrMode addr_mode);
 
+// HLT - Halt the CPU
+// Operation: Stop execution
+void hlt(Machine *m, AddrMode addr_mode);
+
 // INC - Increment Memory By One
 // Operation: M + 1 → M
 void inc(Machine *m, AddrMode addr_mode);
@@ -189,6 +193,10 @@ void sed(Machine *m, AddrMode addr_mode);
 // SEI - Set Interrupt Disable
 // Operation: 1 → I
 void sei(Machine *m, AddrMode addr_mode);
+
+// SLO - Arithmetic Shift Left then "OR" Memory with Accumulator
+// Operation: M * 2 → M, A ∨ M → A
+void slo(Machine *m, AddrMode addr_mode);
 
 // STA - Store Accumulator in Memory
 // Operation: A → M

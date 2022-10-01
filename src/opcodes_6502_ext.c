@@ -1,9 +1,11 @@
 #include "opcodes_6502.h"
 #include "instructions.h"
 
-const Opcode opcodes_6502[] = {
+const Opcode opcodes_6502_ext[] = {
         [0x00] = {brk, Implied, "BRK"},
         [0x01] = {ora, XIndexedZeroPageIndirect, "ORA"},
+        [0x02] = {hlt, Implied, "HLT"},
+        [0x03] = {slo, XIndexedZeroPageIndirect, "SLO"},
         [0x05] = {ora, ZeroPage, "ORA"},
         [0x06] = {asl, ZeroPage, "ASL"},
         [0x08] = {php, Implied, "PHP"},
@@ -14,6 +16,8 @@ const Opcode opcodes_6502[] = {
 
         [0x10] = {bpl, Relative, "BPL"},
         [0x11] = {ora, ZeroPageIndirectYIndexed, "ORA"},
+        [0x12] = {hlt, Implied, "HLT"},
+        [0x13] = {slo, ZeroPageIndirectYIndexed, "SLO"},
         [0x15] = {ora, XIndexedZeroPage, "ORA"},
         [0x16] = {asl, XIndexedZeroPage, "ASL"},
         [0x18] = {clc, Implied, "CLC"},
@@ -23,6 +27,7 @@ const Opcode opcodes_6502[] = {
 
         [0x20] = {jsr, Absolute, "JSR"},
         [0x21] = {and, XIndexedZeroPageIndirect, "AND"},
+        [0x22] = {hlt, Implied, "HLT"},
         [0x24] = {bit, ZeroPage, "BIT"},
         [0x25] = {and, ZeroPage, "AND"},
         [0x26] = {rol, ZeroPage, "ROL"},
@@ -35,6 +40,7 @@ const Opcode opcodes_6502[] = {
 
         [0x30] = {bmi, Relative, "BMI"},
         [0x31] = {and, ZeroPageIndirectYIndexed, "AND"},
+        [0x32] = {hlt, Implied, "HLT"},
         [0x35] = {and, XIndexedZeroPage, "AND"},
         [0x36] = {rol, XIndexedZeroPage, "ROL"},
         [0x38] = {sec, Implied, "SEC"},
@@ -44,6 +50,7 @@ const Opcode opcodes_6502[] = {
 
         [0x40] = {rti, Implied, "RTI"},
         [0x41] = {eor, XIndexedZeroPageIndirect, "EOR"},
+        [0x42] = {hlt, Implied, "HLT"},
         [0x45] = {eor, ZeroPage, "EOR"},
         [0x46] = {lsr, ZeroPage, "LSR"},
         [0x48] = {pha, Implied, "PHA"},
@@ -55,6 +62,7 @@ const Opcode opcodes_6502[] = {
 
         [0x50] = {bvc, Relative, "BVC"},
         [0x51] = {eor, ZeroPageIndirectYIndexed, "EOR"},
+        [0x52] = {hlt, Implied, "HLT"},
         [0x55] = {eor, XIndexedZeroPage, "EOR"},
         [0x56] = {lsr, XIndexedZeroPage, "LSR"},
         [0x58] = {cli, Implied, "CLI"},
@@ -64,6 +72,7 @@ const Opcode opcodes_6502[] = {
 
         [0x60] = {rts, Implied, "RTS"},
         [0x61] = {adc, XIndexedZeroPageIndirect, "ADC"},
+        [0x62] = {hlt, Implied, "HLT"},
         [0x65] = {adc, ZeroPage, "ADC"},
         [0x66] = {ror, ZeroPage, "ROR"},
         [0x68] = {pla, Implied, "PLA"},
@@ -75,6 +84,7 @@ const Opcode opcodes_6502[] = {
 
         [0x70] = {bvs, Relative, "BVS"},
         [0x71] = {adc, ZeroPageIndirectYIndexed, "ADC"},
+        [0x72] = {hlt, Implied, "HLT"},
         [0x75] = {adc, XIndexedZeroPage, "ADC"},
         [0x76] = {ror, XIndexedZeroPage, "ROR"},
         [0x78] = {sei, Implied, "SEI"},
@@ -94,6 +104,7 @@ const Opcode opcodes_6502[] = {
 
         [0x90] = {bcc, Relative, "BCC"},
         [0x91] = {sta, ZeroPageIndirectYIndexed, "STA"},
+        [0x92] = {hlt, Implied, "HLT"},
         [0x94] = {sty, XIndexedZeroPage, "STY"},
         [0x95] = {sta, XIndexedZeroPage, "STA"},
         [0x96] = {stx, YIndexedZeroPage, "STX"},
@@ -117,6 +128,7 @@ const Opcode opcodes_6502[] = {
 
         [0xB0] = {bcs, Relative, "BCS"},
         [0xB1] = {lda, ZeroPageIndirectYIndexed, "LDA"},
+        [0xB2] = {hlt, Implied, "HLT"},
         [0xB4] = {ldy, XIndexedZeroPage, "LDY"},
         [0xB5] = {lda, XIndexedZeroPage, "LDA"},
         [0xB6] = {ldx, YIndexedZeroPage, "LDX"},
@@ -141,6 +153,7 @@ const Opcode opcodes_6502[] = {
 
         [0xD0] = {bne, Relative, "BNE"},
         [0xD1] = {cmp, ZeroPageIndirectYIndexed, "CMP"},
+        [0xD2] = {hlt, Implied, "HLT"},
         [0xD5] = {cmp, XIndexedZeroPage, "CMP"},
         [0xD6] = {dec, XIndexedZeroPage, "DEC"},
         [0xD8] = {cld, Implied, "CLD"},
@@ -162,6 +175,7 @@ const Opcode opcodes_6502[] = {
 
         [0xF0] = {beq, Relative, "BEQ"},
         [0xF1] = {sbc, ZeroPageIndirectYIndexed, "SBC"},
+        [0xF2] = {hlt, Implied, "HLT"},
         [0xF5] = {sbc, XIndexedZeroPage, "SBC"},
         [0xF6] = {inc, XIndexedZeroPage, "INC"},
         [0xF8] = {sed, Implied, "SED"},

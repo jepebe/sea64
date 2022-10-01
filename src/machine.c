@@ -1,18 +1,22 @@
 #include "machine.h"
 #include "stdio.h"
-#include "opcodes_6502.h"
+#include "opcodes.h"
 #include "debug.h"
 
 Machine machine_create(void) {
     Machine result = {0};
     cpu_reset(&result.cpu);
+    result.halt = false;
     return result;
 }
 
 void machine_tick(Machine *machine) {
+    if(machine->halt) {
+        return;
+    }
     machine->cycle_count = 0;
     u8 opcode_num = machine_read_byte(machine, machine->cpu.PC++);
-    Opcode opcode = fetch_opcode(opcode_num);
+    Opcode opcode = fetch_opcode(opcode_num, machine->cpu.cpu_type);
 
     if (opcode.op_fn != NULL) {
         opcode.op_fn(machine, opcode.addr_mode);
@@ -207,4 +211,8 @@ void machine_nmi(Machine *machine) {
     u8 high = machine_read_byte(machine, 0xFFFB);
     u16 addr = (high << 8) | low;
     machine->cpu.PC = addr;
+}
+
+void machine_halt(Machine *machine) {
+    machine->halt = true;
 }

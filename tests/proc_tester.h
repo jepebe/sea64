@@ -2,6 +2,7 @@
 
 #include "seatypes.h"
 #include "machine.h"
+#include "seatest.h"
 
 typedef struct {
     u16 addr;
@@ -29,7 +30,6 @@ typedef struct {
 
 typedef enum {
     ProcessorTesterOK,
-    ProcessorTesterFileError,
     ProcessorTesterEOF,
 } Error;
 
@@ -40,8 +40,6 @@ typedef struct {
     u64 buffer_size;
     u8 *data_buffer;
     Error error;
-    u64 error_loc;
-    u64 error_line;
 } ProcTester;
 
 void read_processor_tests(ProcTester *proc_tester, char *path);
@@ -49,3 +47,5 @@ void read_processor_tests(ProcTester *proc_tester, char *path);
 void clear_processor_tester(ProcTester *proc_tester);
 
 bool read_next_processor_test(ProcTester *proc_tester);
+
+Tester run_processor_tests(Tester *tester, Machine *machine, const char *path_prefix);
