@@ -38,7 +38,7 @@ static char *addr_mode_name(AddrMode mode) {
 }
 
 void print_line() {
-    printf("---+");
+    printf("----+");
     for (int col = 0; col < 16; ++col) {
         printf("---------+");
     }
@@ -46,9 +46,9 @@ void print_line() {
 }
 
 void print_header() {
-    printf("   |");
+    printf("    |");
     for (int col = 0; col < 16; ++col) {
-        printf("    %X    ", col);
+        printf("   x%X    ", col);
         printf("|");
     }
     printf("\n");
@@ -62,7 +62,7 @@ int main() {
     print_line();
 
     for (int row = 0; row < 16; ++row) {
-        printf(" %X |", row);
+        printf(" %Xx |", row);
         for (int col = 0; col < 16; ++col) {
             Opcode opc = fetch_opcode(row * 16 + col, cpu_type);
             if (opc.op_fn != NULL) {
@@ -75,7 +75,7 @@ int main() {
         }
         printf("\n");
 
-        printf("   |");
+        printf("    |");
         for (int col = 0; col < 16; ++col) {
             Opcode opc = fetch_opcode(row * 16 + col, cpu_type);
 

@@ -227,35 +227,36 @@ static char *decode_flags(CPUFlags flags, char *buf) {
 
 static bool compare_state_equal(Machine *machine, ProcState *state) {
     bool equal = true;
-    if (machine->cpu.PC != state->pc) {
-        printf("PC $%04X != $%04X\n", machine->cpu.PC, state->pc);
+    CPU cpu = machine->cpu;
+    if (cpu.PC != state->pc) {
+        printf("PC $%04X != $%04X [%d] (expected)\n", cpu.PC, state->pc, state->pc);
         equal = false;
     }
-    if (machine->cpu.S != state->s) {
-        printf("S 0x%02X != 0x%02X\n", machine->cpu.S, state->s);
-        equal = false;
-    }
-
-    if (machine->cpu.A != state->a) {
-        printf("A 0x%02X != 0x%02X\n", machine->cpu.A, state->a);
+    if (cpu.S != state->s) {
+        printf("S 0x%02X != 0x%02X (expected)\n", cpu.S, state->s);
         equal = false;
     }
 
-    if (machine->cpu.X != state->x) {
-        printf("X 0x%02X != 0x%02X\n", machine->cpu.X, state->x);
+    if (cpu.A != state->a) {
+        printf("A 0x%02X != 0x%02X (expected)\n", cpu.A, state->a);
         equal = false;
     }
 
-    if (machine->cpu.Y != state->y) {
-        printf("Y 0x%02X != 0x%02X\n", machine->cpu.Y, state->y);
+    if (cpu.X != state->x) {
+        printf("X 0x%02X != 0x%02X (expected)\n", cpu.X, state->x);
         equal = false;
     }
 
-    if (machine->cpu.P.status != state->p) {
+    if (cpu.Y != state->y) {
+        printf("Y 0x%02X != 0x%02X (expected)\n", cpu.Y, state->y);
+        equal = false;
+    }
+
+    if (cpu.P.status != state->p) {
         CPUFlags final_flags = {.status=state->p};
-        char *flags_m = decode_flags(machine->cpu.P, flags_buffer_1);
+        char *flags_m = decode_flags(cpu.P, flags_buffer_1);
         char *flags_f = decode_flags(final_flags, flags_buffer_2);
-        printf("P %s != %s A=%02X\n", flags_m, flags_f, machine->cpu.A);
+        printf("P %s != %s (expected)\n", flags_m, flags_f);
         equal = false;
     }
 
@@ -322,8 +323,9 @@ static bool run_opcode_tests(Machine *machine, ProcTester *proc_tester, Opcode *
 
             ProcState final = proc_test.final;
             if (!compare_state_equal(machine, &final)) {
+                compare_cycles_equals(machine, &proc_test);
                 u16 pc = initial.pc;
-                (*machine).cpu.PC = pc;
+                machine->cpu.PC = pc;
                 disassemble_instruction(machine, pc, opc, (*opcode));
                 cpu_instruction_context(machine);
                 print_failure_warning(path_buffer, proc_tester);
@@ -335,6 +337,10 @@ static bool run_opcode_tests(Machine *machine, ProcTester *proc_tester, Opcode *
                 print_failure_warning(path_buffer, proc_tester);
                 return false;
             } else if (!compare_cycles_equals(machine, &proc_test)) {
+                u16 pc = initial.pc;
+                machine->cpu.PC = pc;
+                disassemble_instruction(machine, pc, opc, (*opcode));
+                cpu_instruction_context(machine);
                 print_failure_warning(path_buffer, proc_tester);
                 return false;
             }
