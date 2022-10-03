@@ -30,7 +30,6 @@ void machine_tick(Machine *machine) {
 
 u8 machine_read_byte(Machine *machine, u16 addr) {
     u8 data = machine->ram[addr];
-    machine->cpu.cycles++;
 
     machine->cycles[machine->cycle_count].addr = addr;
     machine->cycles[machine->cycle_count].value = data;
@@ -42,7 +41,6 @@ u8 machine_read_byte(Machine *machine, u16 addr) {
 
 void machine_write_byte(Machine *machine, u16 addr, u8 value) {
     machine->ram[addr] = value;
-    machine->cpu.cycles++;
 
     machine->cycles[machine->cycle_count].addr = addr;
     machine->cycles[machine->cycle_count].value = value;

@@ -45,7 +45,6 @@ typedef struct {
     CPUFlags P; // Processor Status
     u16 PC; // Program Counter
 
-    u64 cycles;     // Cycle count
     u64 tick_count; // number of opcodes processed
     CPUType cpu_type;
 } CPU;
