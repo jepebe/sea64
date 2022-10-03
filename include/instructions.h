@@ -2,6 +2,16 @@
 
 #include "machine.h"
 
+void adjust_zero_and_negative_flag(Machine *m, u8 value);
+
+void page_cross_behavior(Machine *m, AddrMode addr_mode, u16 addr);
+
+void add(Machine *m, u8 value);
+
+void bcd_add(Machine *m, u8 value);
+
+void bcd_sub(Machine *m, u8 value);
+
 // ADC - Add Memory to Accumulator with Carry
 // Operation: A + M + C → A, C
 void adc(Machine *m, AddrMode addr_mode);

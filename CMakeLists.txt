@@ -15,6 +15,7 @@ set(SOURCES
         src/opcodes_6502.c
         src/opcodes_6502_ext.c
         src/instructions.c
+        src/instructions_ext.c
         src/debug.c
         src/disassembly.c)
 
