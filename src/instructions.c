@@ -1,7 +1,7 @@
 #include "instructions.h"
 #include "debug.h"
 
-static inline void adjust_zero_and_negative_flag(Machine *m, u8 value) {
+inline void adjust_zero_and_negative_flag(Machine *m, u8 value) {
     m->cpu.P.Z = value == 0;
     m->cpu.P.N = (value & 0x80) == 0x80;
 }
@@ -19,7 +19,7 @@ static void relative_branch(Machine *m, bool should_branch) {
     }
 }
 
-static inline void page_cross_behavior(Machine *m, AddrMode addr_mode, u16 addr) {
+inline void page_cross_behavior(Machine *m, AddrMode addr_mode, u16 addr) {
     switch (addr_mode) {
         case ZeroPageIndirectYIndexed:
         case XIndexedAbsolute:
@@ -34,7 +34,7 @@ static inline void page_cross_behavior(Machine *m, AddrMode addr_mode, u16 addr)
     }
 }
 
-static void add(Machine *m, u8 value) {
+void add(Machine *m, u8 value) {
     u8 carry = m->cpu.P.C;
     u8 a = m->cpu.A;
     u16 result = a + value + carry;
@@ -46,7 +46,7 @@ static void add(Machine *m, u8 value) {
     m->cpu.A = result & 0xFF;
 }
 
-static void bcd_add(Machine *m, u8 value) {
+void bcd_add(Machine *m, u8 value) {
     u8 carry = m->cpu.P.C;
     u8 a = m->cpu.A;
 
@@ -72,7 +72,7 @@ static void bcd_add(Machine *m, u8 value) {
     m->cpu.A = (high << 4) | low;
 }
 
-static void bcd_sub(Machine *m, u8 value) {
+void bcd_sub(Machine *m, u8 value) {
     u8 borrow = !m->cpu.P.C;
     u8 a = m->cpu.A;
 
