@@ -376,7 +376,6 @@ void lsr(Machine *m, AddrMode addr_mode) {
 
 void nop(Machine *m, AddrMode UNUSED addr_mode) {
     machine_read_byte(m, m->cpu.PC); // cycle correct behavior
-    m->cpu.cycles++;
 }
 
 void ora(Machine *m, AddrMode addr_mode) {
@@ -532,7 +531,6 @@ void sty(Machine *m, AddrMode addr_mode) {
 void tax(Machine *m, AddrMode UNUSED addr_mode) {
     machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.X = m->cpu.A;
-    m->cpu.cycles++;
 
     adjust_zero_and_negative_flag(m, m->cpu.X);
 }
@@ -540,7 +538,6 @@ void tax(Machine *m, AddrMode UNUSED addr_mode) {
 void tay(Machine *m, AddrMode UNUSED addr_mode) {
     machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.Y = m->cpu.A;
-    m->cpu.cycles++;
 
     adjust_zero_and_negative_flag(m, m->cpu.Y);
 }
@@ -554,20 +551,17 @@ void tsx(Machine *m, UNUSED AddrMode addr_mode) {
 void txa(Machine *m, AddrMode UNUSED addr_mode) {
     machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.A = m->cpu.X;
-    m->cpu.cycles++;
     adjust_zero_and_negative_flag(m, m->cpu.X);
 }
 
 void txs(Machine *m, AddrMode UNUSED addr_mode) {
     machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.S = m->cpu.X;
-    m->cpu.cycles++;
 }
 
 void tya(Machine *m, AddrMode UNUSED addr_mode) {
     machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     m->cpu.A = m->cpu.Y;
-    m->cpu.cycles++;
 
     adjust_zero_and_negative_flag(m, m->cpu.A);
 }
