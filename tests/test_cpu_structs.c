@@ -1,6 +1,6 @@
-#include <stdlib.h>
-#include "seatest.h"
 #include "cpu.h"
+#include "seatest.h"
+#include <stdlib.h>
 
 int main(void) {
     Tester tester = create_tester("CPU Structs tests");

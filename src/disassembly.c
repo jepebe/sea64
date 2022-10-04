@@ -1,6 +1,6 @@
 #include "disassembly.h"
-#include "stdio.h"
 #include "debug.h"
+#include "stdio.h"
 
 static char addr_mode_buffer[20];
 static char register_buffer[26];
@@ -33,7 +33,7 @@ static char *decode_addr_mode(Machine *machine, u16 addr, AddrMode mode) {
         }
         case Immediate: {
             u8 value = machine->ram[addr + 1];
-//            sprintf(addr_mode_buffer, "#$%02X (%d) ", value, value);
+            // sprintf(addr_mode_buffer, "#$%02X (%d) ", value, value);
             sprintf(addr_mode_buffer, "#%02X (%d) ", value, value);
             break;
         }
@@ -51,8 +51,8 @@ static char *decode_addr_mode(Machine *machine, u16 addr, AddrMode mode) {
             u8 low = machine->ram[addr + 1];
             u8 high = machine->ram[addr + 2];
             u16 abs_addr = (high << 8) | low;
-//            u16 index_addr = abs_addr + machine->cpu.X;
-//            sprintf(addr_mode_buffer, "$%04X,X -> $%04X ", abs_addr, index_addr);
+            // u16 index_addr = abs_addr + machine->cpu.X;
+            // sprintf(addr_mode_buffer, "$%04X,X -> $%04X ", abs_addr, index_addr);
             sprintf(addr_mode_buffer, "$%04X,X ", abs_addr);
             break;
         }
@@ -70,8 +70,8 @@ static char *decode_addr_mode(Machine *machine, u16 addr, AddrMode mode) {
             u8 low = machine->ram[addr + 1];
             u8 high = machine->ram[addr + 2];
             u16 abs_addr = (high << 8) | low;
-//            u16 index_addr = abs_addr + machine->cpu.Y;
-//            sprintf(addr_mode_buffer, "$%04X,Y -> $%04X ", abs_addr, index_addr);
+            // u16 index_addr = abs_addr + machine->cpu.Y;
+            // sprintf(addr_mode_buffer, "$%04X,Y -> $%04X ", abs_addr, index_addr);
             sprintf(addr_mode_buffer, "$%04X,Y ", abs_addr);
             break;
         }
@@ -122,7 +122,7 @@ static char *decode_flags(Machine *machine) {
 
 void disassemble_instruction(Machine *machine, u16 addr, u8 opc, Opcode opcode) {
     printf("[$%04X] ", addr);
-    printf("[%02X] ", opc); // Opcode number
+    printf("[%02X] ", opc);     // Opcode number
     printf("%s ", opcode.name); // opcode mnemonic
 
     printf("%-20s", decode_addr_mode(machine, addr, opcode.addr_mode));

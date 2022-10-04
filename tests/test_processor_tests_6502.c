@@ -1,7 +1,7 @@
-#include <stdlib.h>
-#include "machine.h"
 #include "debug.h"
+#include "machine.h"
 #include "proc_tester.h"
+#include <stdlib.h>
 
 int main(void) {
     Tester tester = create_tester("Processor Tests 6502");

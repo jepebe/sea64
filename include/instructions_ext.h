@@ -36,7 +36,7 @@ void lax(Machine *m, AddrMode addr_mode);
 void lxa(Machine *m, AddrMode addr_mode);
 
 // NOP - No Operation
-// Operation: No operatio
+// Operation: No operation
 void nop_ext(Machine *m, AddrMode addr_mode);
 
 // RLA - Rotate Left then "AND" with Accumulator

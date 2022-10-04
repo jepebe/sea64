@@ -1,8 +1,8 @@
 #pragma once
 
-#include "seatypes.h"
 #include "machine.h"
 #include "seatest.h"
+#include "seatypes.h"
 
 typedef struct {
     u16 addr;

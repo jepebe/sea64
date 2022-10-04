@@ -110,7 +110,7 @@ void adc(Machine *m, AddrMode addr_mode) {
     }
 }
 
-void and(Machine *m, AddrMode addr_mode) {
+void and (Machine * m, AddrMode addr_mode) {
     u8 mem = machine_read_byte_with_mode(m, addr_mode);
     u8 result = m->cpu.A & mem;
     adjust_zero_and_negative_flag(m, result);
@@ -127,7 +127,7 @@ void asl(Machine *m, AddrMode addr_mode) {
         addr = machine_fetch_address(m, addr_mode);
         value = machine_read_byte(m, addr);
         page_cross_behavior(m, addr_mode, addr);
-        machine_write_byte(m, addr, value);  // cycle correct behavior
+        machine_write_byte(m, addr, value); // cycle correct behavior
     }
 
     m->cpu.P.C = (value & 0x80) == 0x80;
@@ -272,7 +272,7 @@ void eor(Machine *m, AddrMode addr_mode) {
 void hlt(Machine *m, AddrMode UNUSED addr_mode) {
     machine_read_byte(m, m->cpu.PC); // cycle correct behavior
     machine_read_byte(m, m->cpu.PC); // cycle correct behavior
-    m->cpu.PC--; // cycle correct behavior
+    m->cpu.PC--;                     // cycle correct behavior
     machine_halt(m);
 }
 
@@ -395,14 +395,14 @@ void php(Machine *m, AddrMode UNUSED addr_mode) {
 }
 
 void pla(Machine *m, AddrMode UNUSED addr_mode) {
-    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
+    machine_read_byte(m, m->cpu.PC);         // cycle correct behavior
     machine_read_byte(m, 0x0100 | m->cpu.S); // cycle correct behavior
     m->cpu.A = machine_pop_byte_from_stack(m);
     adjust_zero_and_negative_flag(m, m->cpu.A);
 }
 
 void plp(Machine *m, AddrMode UNUSED addr_mode) {
-    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
+    machine_read_byte(m, m->cpu.PC);         // cycle correct behavior
     machine_read_byte(m, 0x0100 | m->cpu.S); // cycle correct behavior
     m->cpu.P.status = machine_pop_byte_from_stack(m);
     m->cpu.P.U = true;
@@ -419,7 +419,7 @@ void rol(Machine *m, AddrMode addr_mode) {
         addr = machine_fetch_address(m, addr_mode);
         value = machine_read_byte(m, addr);
         page_cross_behavior(m, addr_mode, addr);
-        machine_write_byte(m, addr, value);  // cycle correct behavior
+        machine_write_byte(m, addr, value); // cycle correct behavior
     }
 
     u8 carry = m->cpu.P.C;
@@ -467,7 +467,7 @@ void rti(Machine *m, AddrMode UNUSED addr_mode) {
 }
 
 void rts(Machine *m, AddrMode UNUSED addr_mode) {
-    machine_read_byte(m, m->cpu.PC); // cycle correct behavior
+    machine_read_byte(m, m->cpu.PC);         // cycle correct behavior
     machine_read_byte(m, 0x0100 | m->cpu.S); // cycle correct behavior
     machine_pop_program_counter_from_stack(m);
     machine_read_byte(m, m->cpu.PC); // cycle correct behavior
@@ -502,7 +502,7 @@ void slo(Machine *m, AddrMode addr_mode) {
     u16 addr = machine_fetch_address(m, addr_mode);
     u8 value = machine_read_byte(m, addr);
     page_cross_behavior(m, addr_mode, addr);
-    machine_write_byte(m, addr, value);  // cycle correct behavior
+    machine_write_byte(m, addr, value); // cycle correct behavior
 
     m->cpu.P.C = (value & 0x80) == 0x80;
     value = value << 1;

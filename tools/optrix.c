@@ -1,7 +1,7 @@
-#include "stdio.h"
-#include "seatypes.h"
 #include "cpu.h"
 #include "opcodes.h"
+#include "seatypes.h"
+#include "stdio.h"
 
 static char *addr_mode_name(AddrMode mode) {
     switch (mode) {
@@ -12,7 +12,7 @@ static char *addr_mode_name(AddrMode mode) {
         case Accumulator:
             return "A";
         case Immediate:
-            return "#nn";  // canonically #$nn
+            return "#nn"; // canonically #$nn
         case Implied:
             return "";
         case Relative:

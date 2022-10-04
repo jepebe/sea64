@@ -1,8 +1,8 @@
+#include "seaio.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "seaio.h"
 
 NO_RETURN void error(char *message, ...) {
     va_list argp;

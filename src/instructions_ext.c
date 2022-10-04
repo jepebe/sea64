@@ -2,7 +2,6 @@
 #include "instructions.h"
 #include "seaio.h"
 
-
 void anc(Machine *m, AddrMode addr_mode) {
     and(m, addr_mode);
     m->cpu.P.C = m->cpu.P.N;
@@ -35,7 +34,6 @@ void arr(Machine *m, AddrMode addr_mode) {
         m->cpu.P.C = (m->cpu.A & 0x40) == 0x40;
     }
 }
-
 
 void asr(Machine *m, AddrMode addr_mode) {
     u8 mem = machine_read_byte_with_mode(m, addr_mode);
@@ -115,7 +113,7 @@ void rla(Machine *m, AddrMode addr_mode) {
     u16 addr = machine_fetch_address(m, addr_mode);
     u8 value = machine_read_byte(m, addr);
     page_cross_behavior(m, addr_mode, addr);
-    machine_write_byte(m, addr, value);  // cycle correct behavior
+    machine_write_byte(m, addr, value); // cycle correct behavior
 
     u8 carry = m->cpu.P.C;
     m->cpu.P.C = (value & 0x80) == 0x80;

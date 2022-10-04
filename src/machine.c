@@ -1,7 +1,7 @@
 #include "machine.h"
-#include "stdio.h"
-#include "opcodes.h"
 #include "debug.h"
+#include "opcodes.h"
+#include "stdio.h"
 
 Machine machine_create(void) {
     Machine result = {0};
@@ -11,7 +11,7 @@ Machine machine_create(void) {
 }
 
 void machine_tick(Machine *machine) {
-    if(machine->halt) {
+    if (machine->halt) {
         return;
     }
     machine->cycle_count = 0;
@@ -72,13 +72,13 @@ u16 machine_fetch_address(Machine *machine, AddrMode mode) {
         }
         case XIndexedZeroPage: {
             u8 zero_page_addr = machine_read_immediate_byte(machine);
-            machine_read_byte(machine, zero_page_addr);  // cycle correct behavior
+            machine_read_byte(machine, zero_page_addr); // cycle correct behavior
             addr = (zero_page_addr + machine->cpu.X) & 0x00FF;
             break;
         }
         case XIndexedZeroPageIndirect: {
             u8 zero_page_addr = machine_read_immediate_byte(machine);
-            machine_read_byte(machine, zero_page_addr);  // cycle correct behavior
+            machine_read_byte(machine, zero_page_addr); // cycle correct behavior
             zero_page_addr += machine->cpu.X;
             u8 low = machine_read_byte(machine, zero_page_addr & 0x00FF);
             u8 high = machine_read_byte(machine, (zero_page_addr + 1) & 0x00FF);
@@ -98,7 +98,7 @@ u16 machine_fetch_address(Machine *machine, AddrMode mode) {
         }
         case YIndexedZeroPage: {
             u8 zero_page_addr = machine_read_immediate_byte(machine);
-            machine_read_byte(machine, zero_page_addr);  // cycle correct behavior
+            machine_read_byte(machine, zero_page_addr); // cycle correct behavior
             addr = (zero_page_addr + machine->cpu.Y) & 0x00FF;
             break;
         }
@@ -164,7 +164,7 @@ u8 machine_pop_byte_from_stack(Machine *machine) {
 void machine_push_program_counter_on_stack(Machine *machine) {
     u16 pc = machine->cpu.PC;
     machine_push_byte_on_stack(machine, (pc >> 8) & 0xFF); // high
-    machine_push_byte_on_stack(machine, pc & 0xFF); // low
+    machine_push_byte_on_stack(machine, pc & 0xFF);        // low
 }
 
 void machine_pop_program_counter_from_stack(Machine *machine) {
@@ -178,7 +178,6 @@ void machine_push_cpu_flags_on_stack(Machine *machine) {
     flags.U = true;
     flags.B = true;
     machine_push_byte_on_stack(machine, flags.status);
-
 }
 
 void machine_irq(Machine *machine) {
