@@ -1,10 +1,9 @@
-#include <stdlib.h>
-#include "seatest.h"
-#include "seaio.h"
 #include "debug.h"
-#include "machine.h"
 #include "disassembly.h"
-
+#include "machine.h"
+#include "seaio.h"
+#include "seatest.h"
+#include <stdlib.h>
 
 int main(void) {
     Tester tester = create_tester("Klaus's Functional Tests");
@@ -18,7 +17,7 @@ int main(void) {
         machine.ram[i] = data.data[i];
     }
 
-    machine.cpu.PC = 0x0400;  // this address is where the test program starts
+    machine.cpu.PC = 0x0400; // this address is where the test program starts
 
     const u16 interrupt_port = 0xbffc;
 
@@ -37,12 +36,12 @@ int main(void) {
         }
 
         u8 port_value = machine.ram[interrupt_port];
-        if ((port_value & 0x02) == 0x02) {  // check NMI bit
+        if ((port_value & 0x02) == 0x02) { // check NMI bit
             machine_nmi(&machine);
             port_value = port_value & ~0x02;
         }
 
-        if (!machine.cpu.P.I && (port_value & 0x01) == 0x01) {  // check IRQ bit
+        if (!machine.cpu.P.I && (port_value & 0x01) == 0x01) { // check IRQ bit
             machine_irq(&machine);
             port_value = port_value & ~0x01;
         }

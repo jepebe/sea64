@@ -18,7 +18,7 @@ void adc(Machine *m, AddrMode addr_mode);
 
 // AND - "AND" Memory with Accumulator
 // Operation: A ∧ M → A
-void and(Machine *m, AddrMode addr_mode);
+void and (Machine * m, AddrMode addr_mode);
 
 // ASL - Arithmetic Shift Left
 // Operation: C ← /M7...M0/ ← 0
@@ -243,6 +243,3 @@ void txs(Machine *m, AddrMode addr_mode);
 // TYA - Transfer Index Y To Accumulator
 // Operation: Y → A
 void tya(Machine *m, AddrMode addr_mode);
-
-
-

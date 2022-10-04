@@ -1,8 +1,8 @@
-#include <stdlib.h>
-#include "seatest.h"
-#include "seaio.h"
-#include "machine.h"
 #include "debug.h"
+#include "machine.h"
+#include "seaio.h"
+#include "seatest.h"
+#include <stdlib.h>
 
 int main(void) {
     Tester tester = create_tester("Klaus's Functional Tests");
@@ -16,7 +16,7 @@ int main(void) {
         machine.ram[i] = data.data[i];
     }
 
-    machine.cpu.PC = 0x0400;  // this address is where the test program starts
+    machine.cpu.PC = 0x0400; // this address is where the test program starts
 
     while (true) {
         u16 pc = machine.cpu.PC;
@@ -30,7 +30,6 @@ int main(void) {
         pc = machine.cpu.PC;
         if (pc == 0x336D) {
             test_true(&tester, true, "Functional tests before BCD completed!");
-            //break;
         }
 
         if (pc == 0x3469) {

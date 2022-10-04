@@ -1,14 +1,14 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
-#include <errno.h>
+#include <unistd.h>
 
-#include "seaio.h"
-#include "proc_tester.h"
 #include "debug.h"
-#include "opcodes.h"
 #include "disassembly.h"
+#include "opcodes.h"
+#include "proc_tester.h"
+#include "seaio.h"
 
 void read_processor_tests(ProcTester *proc_tester, char *path) {
     if (access(path, F_OK) != 0) {
@@ -50,12 +50,12 @@ void read_processor_tests(ProcTester *proc_tester, char *path) {
 }
 
 static u8 read_u8(ProcTester *proc_tester) {
-    return (u8) *(proc_tester->data_buffer + proc_tester->cursor++);
+    return (u8) * (proc_tester->data_buffer + proc_tester->cursor++);
 }
 
 static u16 read_u16(ProcTester *proc_tester) {
-    u8 high = (u8) *(proc_tester->data_buffer + proc_tester->cursor++);
-    u8 low = (u8) *(proc_tester->data_buffer + proc_tester->cursor++);
+    u8 high = (u8) * (proc_tester->data_buffer + proc_tester->cursor++);
+    u8 low = (u8) * (proc_tester->data_buffer + proc_tester->cursor++);
     return (high << 8) | low;
 }
 
@@ -253,7 +253,7 @@ static bool compare_state_equal(Machine *machine, ProcState *state) {
     }
 
     if (cpu.P.status != state->p) {
-        CPUFlags final_flags = {.status=state->p};
+        CPUFlags final_flags = {.status = state->p};
         char *flags_m = decode_flags(cpu.P, flags_buffer_1);
         char *flags_f = decode_flags(final_flags, flags_buffer_2);
         printf("P %s != %s (expected)\n", flags_m, flags_f);
@@ -305,7 +305,6 @@ static char *addr_mode_name(AddrMode mode) {
     }
 }
 
-
 static bool run_opcode_tests(Machine *machine, ProcTester *proc_tester, Opcode *opcode, u16 opc) {
     while (true) {
         read_next_processor_test(proc_tester);
@@ -315,7 +314,7 @@ static bool run_opcode_tests(Machine *machine, ProcTester *proc_tester, Opcode *
         } else if ((*proc_tester).error != ProcessorTesterOK) {
             error("Unknown ProcessorTester error type %d", (*proc_tester).error);
         } else {
-            ProcTest proc_test = (*proc_tester).proc_test;
+            ProcTest proc_test = proc_tester->proc_test;
             ProcState initial = proc_test.initial;
             load_state(machine, &initial);
 

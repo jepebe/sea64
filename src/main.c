@@ -1,6 +1,5 @@
-#include <stdio.h>
-#include "seatypes.h"
 #include "seaio.h"
+#include <stdio.h>
 
 int main(void) {
     Binary bin_file = read_binary("sea64");

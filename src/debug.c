@@ -1,7 +1,7 @@
-#include <stdarg.h>
-#include <stdlib.h>
 #include "debug.h"
 #include "stdio.h"
+#include <stdarg.h>
+#include <stdlib.h>
 
 void cpu_instruction_context(Machine *machine) {
     u16 segment = machine->cpu.PC & 0xFFF0;

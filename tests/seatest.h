@@ -1,9 +1,9 @@
 #pragma once
 
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
 #include "seatypes.h"
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
 
 #define CHECK "\x1b[0;32m\u2705"
 #define CROSS "\x1b[0;31m\u274C"

@@ -1,11 +1,10 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
 #include "seaio.h"
 #include "seatypes.h"
-
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 // This tool converts Intel HEX format into binary
 // The main purpose is to convert the output from the AS65 assembler used to compile
@@ -31,7 +30,6 @@ static u8 hex2u8(char ch, size_t line) {
         return ch - 'a' + 10;
     error("Expected hexadecimal character value but found '%c' at line %zu", ch, line);
 }
-
 
 u8 parse_byte(FILE *hex, size_t line) {
     char record_length[2];
@@ -75,7 +73,7 @@ bool process_record(FILE *hex, FILE *bin, size_t line) {
         sum += value;
     }
 
-    sum = (~sum) + 1;  // twos complement
+    sum = (~sum) + 1; // twos complement
     u8 checksum = parse_byte(hex, line);
 
     if (checksum != sum) {
@@ -137,5 +135,4 @@ int main(int argc, char *argv[argc]) {
     if (fclose(bin_file) != 0) {
         warning("Failed to close file '%s': %s\n", bin_path, strerror(errno));
     }
-
 }
