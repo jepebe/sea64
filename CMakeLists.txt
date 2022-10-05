@@ -21,7 +21,6 @@ set(SOURCES
         src/debug.c
         src/disassembly.c)
 
-
 add_library(sea64 STATIC ${SOURCES})
 
 set(TEST_SOURCES
@@ -29,6 +28,7 @@ set(TEST_SOURCES
         tests/proc_tester.c)
 
 add_library(sea64test STATIC ${TEST_SOURCES})
+target_link_libraries(sea64test sea64)
 
 add_executable(sea64bin src/main.c)
 target_link_libraries(sea64bin sea64)

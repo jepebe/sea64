@@ -11,7 +11,9 @@ void warning(char *message, ...);
 
 void error_marker(char *file, int line);
 
-#define ERROR(message, ...) error_marker(__FILE__, __LINE__); error((message), __VA_ARGS__);
+#define ERROR(message, ...)           \
+    error_marker(__FILE__, __LINE__); \
+    error((message), __VA_ARGS__);
 
 typedef struct {
     const char *path;

@@ -1,7 +1,7 @@
+#include "opcodes_wdc65c02.h"
 #include "instructions.h"
 #include "instructions_ext.h"
 #include "instructions_wdc65c02.h"
-#include "opcodes_wdc65c02.h"
 
 const Opcode opcodes_wdc65c02[] = {
     [0x00] = {brk_wdc, Implied, "BRK"},

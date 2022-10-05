@@ -153,7 +153,7 @@ void bcs(Machine *m, AddrMode UNUSED addr_mode) {
 void bit(Machine *m, AddrMode addr_mode) {
     u8 mem = machine_read_byte_with_mode(m, addr_mode);
 
-    if(addr_mode != Immediate) {
+    if (addr_mode != Immediate) {
         m->cpu.P.N = (mem & 0x80) == 0x80;
         m->cpu.P.V = (mem & 0x40) == 0x40;
     }
@@ -323,7 +323,7 @@ void jmp(Machine *m, AddrMode addr_mode) {
         }
         case XIndexedAbsoluteIndirect: {
             addr += m->cpu.X;
-            machine_read_byte(m, m->cpu.PC - 2);  // cycle correct behavior
+            machine_read_byte(m, m->cpu.PC - 2); // cycle correct behavior
             u8 low = machine_read_byte(m, addr);
             u8 high = machine_read_byte(m, addr + 1);
             u16 ptr = ((high << 8) | low);

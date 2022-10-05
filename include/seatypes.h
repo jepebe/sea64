@@ -4,6 +4,7 @@
 #define NO_RETURN __attribute__((noreturn))
 #define UNUSED __attribute__((__unused__))
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 
