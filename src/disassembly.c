@@ -141,7 +141,7 @@ static char *decode_flags(Machine *machine) {
 
 void disassemble_instruction(Machine *machine, u16 addr, u8 opc, Opcode opcode) {
     printf("[$%04X] ", addr);
-    printf("[%02X] ", opc);     // Opcode number
+    printf("[%02X] ", opc);       // Opcode number
     printf("%-4s ", opcode.name); // opcode mnemonic
 
     printf("%-20s", decode_addr_mode(machine, addr, opcode.addr_mode));
