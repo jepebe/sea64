@@ -1,4 +1,5 @@
 import json
+import os.path
 import sys
 from typing import IO
 
@@ -7,7 +8,7 @@ from typing import IO
 # to a compressed binary format
 # (https://github.com/TomHarte/ProcessorTests/)
 
-def write_string(bin_file: IO, string: str, max_length=10):
+def write_string(bin_file: IO, string: str, max_length: int = 10):
     arr = bytearray([0] * max_length)
     for i in range(max_length):
         if i < len(string):
@@ -17,6 +18,7 @@ def write_string(bin_file: IO, string: str, max_length=10):
         else:
             c = '\x00'
         arr[i] = ord(c)
+    arr[max_length - 1] = ord('\x00')  # Ensure string is null terminated
     bin_file.write(arr)
 
 
@@ -72,10 +74,16 @@ if __name__ == '__main__':
         print(f"Processing {opcode + 1}/256", end='')
         sys.stdout.flush()
 
-        with open(f"../tests/processor_tests/{opcode:02x}.json") as input_file:
+        json_file = f"../tests/processor_tests/wdc65c02/{opcode:02x}.json"
+
+        json_file_size = os.path.getsize(json_file)
+        if json_file_size == 0:
+            continue
+
+        with open(json_file) as input_file:
             data = json.load(input_file)
 
-        with open(f"../tests/processor_tests/{opcode:02x}.bin", "wb") as output_file:
+        with open(f"../tests/processor_tests/wdc65c02/{opcode:02x}.bin", "wb") as output_file:
             for test in data:
 
                 if len(test["name"]) > max_name_len:
