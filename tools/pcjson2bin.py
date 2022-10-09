@@ -75,15 +75,18 @@ if __name__ == '__main__':
         sys.stdout.flush()
 
         json_file = f"../tests/processor_tests/wdc65c02/{opcode:02x}.json"
+        bin_file = f"../tests/processor_tests/wdc65c02/{opcode:02x}.bin"
 
         json_file_size = os.path.getsize(json_file)
         if json_file_size == 0:
+            with open(bin_file, "wb"):
+                pass
             continue
 
         with open(json_file) as input_file:
             data = json.load(input_file)
 
-        with open(f"../tests/processor_tests/wdc65c02/{opcode:02x}.bin", "wb") as output_file:
+        with open(bin_file, "wb") as output_file:
             for test in data:
 
                 if len(test["name"]) > max_name_len:
