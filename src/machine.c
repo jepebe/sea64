@@ -48,6 +48,20 @@ void machine_write_byte(Machine *machine, u16 addr, u8 value) {
     machine->cycle_count++;
 }
 
+// checks if a page is crossed and performs cycle accurate read for the current machine
+static void page_cross_check(Machine *m, u16 addr1, u16 addr2) {
+    if ((addr1 & 0xFF00) != (addr2 & 0xFF00)) {
+        // extra cycle for crossing pages
+        if (m->cpu.cpu_type == WDC65C02) {
+            machine_read_byte(m, m->cpu.PC - 1);
+        } else {
+            machine_read_byte(m, (addr1 & 0xFF00) | (addr2 & 0x00FF));
+        }
+
+        m->page_cross = true;
+    }
+}
+
 u16 machine_fetch_address(Machine *machine, AddrMode mode) {
     machine->page_cross = false;
     u16 addr;
@@ -62,11 +76,7 @@ u16 machine_fetch_address(Machine *machine, AddrMode mode) {
         case XIndexedAbsolute: {
             addr = machine_read_immediate_word(machine);
             u16 indexed_addr = addr + machine->cpu.X;
-            if ((addr & 0xFF00) != (indexed_addr & 0xFF00)) {
-                // extra cycle for crossing pages
-                machine_read_byte(machine, (addr & 0xFF00) | (indexed_addr & 0x00FF));
-                machine->page_cross = true;
-            }
+            page_cross_check(machine, addr, indexed_addr);
             addr += machine->cpu.X;
             break;
         }
@@ -88,11 +98,7 @@ u16 machine_fetch_address(Machine *machine, AddrMode mode) {
         case YIndexedAbsolute: {
             addr = machine_read_immediate_word(machine);
             u16 indexed_addr = addr + machine->cpu.Y;
-            if ((addr & 0xFF00) != (indexed_addr & 0xFF00)) {
-                // extra cycle for crossing pages
-                machine_read_byte(machine, (addr & 0xFF00) | (indexed_addr & 0x00FF));
-                machine->page_cross = true;
-            }
+            page_cross_check(machine, addr, indexed_addr);
             addr += machine->cpu.Y;
             break;
         }
@@ -106,18 +112,20 @@ u16 machine_fetch_address(Machine *machine, AddrMode mode) {
             addr = machine_read_immediate_byte(machine) & 0x00FF;
             break;
         }
+        case ZeroPageIndirect: {
+            u8 zero_page_addr = machine_read_immediate_byte(machine) & 0x00FF;
+            u8 low = machine_read_byte(machine, zero_page_addr & 0x00FF);
+            u8 high = machine_read_byte(machine, (zero_page_addr + 1) & 0x00FF);
+            addr = (high << 8) | low;
+            break;
+        }
         case ZeroPageIndirectYIndexed: {
             u8 zero_page_addr = machine_read_immediate_byte(machine);
             u8 low = machine_read_byte(machine, zero_page_addr & 0x00FF);
             u8 high = machine_read_byte(machine, (zero_page_addr + 1) & 0x00FF);
             addr = (high << 8) | low;
             u16 indexed_addr = addr + machine->cpu.Y;
-            if ((addr & 0xFF00) != (indexed_addr & 0xFF00)) {
-                // extra cycle for crossing pages
-                u16 adr = (addr & 0xFF00) | (indexed_addr & 0x00FF);
-                machine_read_byte(machine, adr); // cycle correct behavior
-                machine->page_cross = true;
-            }
+            page_cross_check(machine, addr, indexed_addr);
             addr = indexed_addr;
             break;
         }

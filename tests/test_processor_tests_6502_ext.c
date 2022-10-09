@@ -10,7 +10,7 @@ int main(void) {
     Machine machine = machine_create();
     machine.cpu.cpu_type = MOS6502EXT;
 
-    char *path_prefix = "../tests/processor_tests";
+    char *path_prefix = "../tests/processor_tests/6502";
     tester = run_processor_tests(&tester, &machine, path_prefix);
     test_summary(&tester);
     exit(tester.fail);

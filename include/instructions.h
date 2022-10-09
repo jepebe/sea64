@@ -34,6 +34,7 @@ void bcs(Machine *m, AddrMode addr_mode);
 
 // BIT - Test Bits in Memory with Accumulator
 // Operation: A ∧ M, M7 → N, M6 → V
+// Flags: only Z when Immediate mode
 void bit(Machine *m, AddrMode addr_mode);
 
 // BMI - Branch on Result Minus

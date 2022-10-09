@@ -186,7 +186,7 @@ static bool compare_cycles_equals(Machine *machine, ProcTest *proc_test) {
     if (fail_index >= 0) {
         warning("cycle #%d mismatch", fail_index + 1);
 
-        for (u8 i = 0; i <= fail_index; ++i) {
+        for (u8 i = 0; i < proc_test->cycle_count; ++i) {
             u16 e_addr = proc_test->cycles[i].addr;
             u8 e_value = proc_test->cycles[i].value;
             CycleActivity e_cyc_act = proc_test->cycles[i].activity;
@@ -197,11 +197,11 @@ static bool compare_cycles_equals(Machine *machine, ProcTest *proc_test) {
             CycleActivity r_cyc_act = machine->cycles[i].activity;
             char *r_act = r_cyc_act == WRITE_CYCLE ? "Write" : "Read";
 
-            if (i < fail_index) {
-                char *msg = "#%d  $%04X = %02X %s == $%04X = %02X %s";
+            if (i != fail_index) {
+                char *msg = "#%d  $%04X = %02X %5s == $%04X = %02X %5s";
                 warning(msg, i + 1, e_addr, e_value, e_act, r_addr, r_value, r_act);
             } else {
-                char *msg = "#%d  $%04X = %02X %s != \x1b[0;31m$%04X = %02X %s";
+                char *msg = "#%d  $%04X = %02X %5s != \x1b[0;31m$%04X = %02X %5s";
                 warning(msg, i + 1, e_addr, e_value, e_act, r_addr, r_value, r_act);
             }
         }
@@ -287,6 +287,8 @@ static char *addr_mode_name(AddrMode mode) {
             return "$nnnn";
         case XIndexedAbsolute:
             return "$nnnn,X";
+        case XIndexedAbsoluteIndirect:
+            return "($nnnn,X)";
         case XIndexedZeroPage:
             return "$nn,X";
         case XIndexedZeroPageIndirect:
@@ -297,8 +299,12 @@ static char *addr_mode_name(AddrMode mode) {
             return "$nn,Y";
         case ZeroPage:
             return "$nn";
+        case ZeroPageIndirect:
+            return "($nn)";
         case ZeroPageIndirectYIndexed:
             return "($nn),Y";
+        case ZeroPageRelative:
+            return "$nn,$nnnn";
         default:
             error_marker(__FILE__, __LINE__);
             error("addressing mode %d not implemented", mode);
@@ -309,10 +315,10 @@ static bool run_opcode_tests(Machine *machine, ProcTester *proc_tester, Opcode *
     while (true) {
         read_next_processor_test(proc_tester);
 
-        if ((*proc_tester).error == ProcessorTesterEOF) {
+        if (proc_tester->error == ProcessorTesterEOF) {
             break; // done
-        } else if ((*proc_tester).error != ProcessorTesterOK) {
-            error("Unknown ProcessorTester error type %d", (*proc_tester).error);
+        } else if (proc_tester->error != ProcessorTesterOK) {
+            error("Unknown ProcessorTester error type %d", proc_tester->error);
         } else {
             ProcTest proc_test = proc_tester->proc_test;
             ProcState initial = proc_test.initial;
@@ -320,25 +326,26 @@ static bool run_opcode_tests(Machine *machine, ProcTester *proc_tester, Opcode *
 
             machine_tick(machine);
 
+            u16 pc = initial.pc;
             ProcState final = proc_test.final;
             if (!compare_state_equal(machine, &final)) {
                 compare_cycles_equals(machine, &proc_test);
-                u16 pc = initial.pc;
                 machine->cpu.PC = pc;
-                disassemble_instruction(machine, pc, opc, (*opcode));
+                disassemble_instruction(machine, pc, opc, *opcode);
                 cpu_instruction_context(machine);
                 print_failure_warning(path_buffer, proc_tester);
                 return false;
-            } else if ((*machine).cycle_count != proc_test.cycle_count) {
+            } else if (machine->cycle_count != proc_test.cycle_count) {
                 char *msg = "Cycle count mismatch expected: %d got: %d";
-                warning(msg, proc_test.cycle_count, (*machine).cycle_count);
+                machine->cpu.PC = pc;
+                warning(msg, proc_test.cycle_count, machine->cycle_count);
+                disassemble_instruction(machine, pc, opc, *opcode);
                 compare_cycles_equals(machine, &proc_test);
                 print_failure_warning(path_buffer, proc_tester);
                 return false;
             } else if (!compare_cycles_equals(machine, &proc_test)) {
-                u16 pc = initial.pc;
                 machine->cpu.PC = pc;
-                disassemble_instruction(machine, pc, opc, (*opcode));
+                disassemble_instruction(machine, pc, opc, *opcode);
                 cpu_instruction_context(machine);
                 print_failure_warning(path_buffer, proc_tester);
                 return false;
