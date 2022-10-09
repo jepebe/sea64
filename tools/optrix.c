@@ -19,6 +19,8 @@ static char *addr_mode_name(AddrMode mode) {
             return "$nnnn";
         case XIndexedAbsolute:
             return "$nnnn,X";
+        case XIndexedAbsoluteIndirect:
+            return "($nnnn,X)";
         case XIndexedZeroPage:
             return "$nn,X";
         case XIndexedZeroPageIndirect:
@@ -29,8 +31,12 @@ static char *addr_mode_name(AddrMode mode) {
             return "$nn,Y";
         case ZeroPage:
             return "$nn";
+        case ZeroPageIndirect:
+            return "($nn)";
         case ZeroPageIndirectYIndexed:
             return "($nn),Y";
+        case ZeroPageRelative:
+            return "$nn,$nnnn";;
         default:
             error_marker(__FILE__, __LINE__);
             error("addressing mode %d not implemented", mode);
@@ -40,7 +46,7 @@ static char *addr_mode_name(AddrMode mode) {
 void print_line() {
     printf("----+");
     for (int col = 0; col < 16; ++col) {
-        printf("---------+");
+        printf("-----------+");
     }
     printf("\n");
 }
@@ -48,14 +54,14 @@ void print_line() {
 void print_header() {
     printf("    |");
     for (int col = 0; col < 16; ++col) {
-        printf("   x%X    ", col);
+        printf("    x%X     ", col);
         printf("|");
     }
     printf("\n");
 }
 
 int main() {
-    CPUType cpu_type = MOS6502EXT;
+    CPUType cpu_type = WDC65C02;
 
     print_line();
     print_header();
@@ -66,9 +72,9 @@ int main() {
         for (int col = 0; col < 16; ++col) {
             Opcode opc = fetch_opcode(row * 16 + col, cpu_type);
             if (opc.op_fn != NULL) {
-                printf(" %-7s ", opc.name);
+                printf(" %-9s ", opc.name);
             } else {
-                printf(" %-7s ", " ");
+                printf(" %-9s ", " ");
             }
 
             printf("|");
@@ -80,9 +86,9 @@ int main() {
             Opcode opc = fetch_opcode(row * 16 + col, cpu_type);
 
             if (opc.op_fn != NULL) {
-                printf(" %-7s ", addr_mode_name(opc.addr_mode));
+                printf(" %-9s ", addr_mode_name(opc.addr_mode));
             } else {
-                printf(" %-7s ", " ");
+                printf(" %-9s ", " ");
             }
 
             printf("|");

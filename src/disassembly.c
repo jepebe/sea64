@@ -56,6 +56,13 @@ static char *decode_addr_mode(Machine *machine, u16 addr, AddrMode mode) {
             sprintf(addr_mode_buffer, "$%04X,X ", abs_addr);
             break;
         }
+        case XIndexedAbsoluteIndirect: {
+            u8 low = machine->ram[addr + 1];
+            u8 high = machine->ram[addr + 2];
+            u16 abs_addr = (high << 8) | low;
+            sprintf(addr_mode_buffer, "($%04X,X) ", abs_addr);
+            break;
+        }
         case XIndexedZeroPage: {
             u8 zero_page_addr = machine->ram[addr + 1];
             sprintf(addr_mode_buffer, "$%02X,X ", zero_page_addr);
@@ -85,9 +92,21 @@ static char *decode_addr_mode(Machine *machine, u16 addr, AddrMode mode) {
             sprintf(addr_mode_buffer, "$%02X ", zero_page_addr);
             break;
         }
+        case ZeroPageIndirect: {
+            u8 zero_page_addr = machine->ram[addr + 1];
+            sprintf(addr_mode_buffer, "($%02X) ", zero_page_addr);
+            break;
+        }
         case ZeroPageIndirectYIndexed: {
             u8 zero_page_addr = machine->ram[addr + 1];
             sprintf(addr_mode_buffer, "($%02X),Y ", zero_page_addr);
+            break;
+        }
+        case ZeroPageRelative: {
+            u8 zero_page_addr = machine->ram[addr + 1];
+            s8 rel = (s8) machine->ram[addr + 2];
+            u16 abs_addr = addr + 2 + rel;
+            sprintf(addr_mode_buffer, "$%02X,$%04X ", zero_page_addr, abs_addr);
             break;
         }
         default:
@@ -123,7 +142,7 @@ static char *decode_flags(Machine *machine) {
 void disassemble_instruction(Machine *machine, u16 addr, u8 opc, Opcode opcode) {
     printf("[$%04X] ", addr);
     printf("[%02X] ", opc);     // Opcode number
-    printf("%s ", opcode.name); // opcode mnemonic
+    printf("%-4s ", opcode.name); // opcode mnemonic
 
     printf("%-20s", decode_addr_mode(machine, addr, opcode.addr_mode));
     printf("%-20s", decode_registers(machine));

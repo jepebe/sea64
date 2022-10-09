@@ -14,8 +14,10 @@ set(SOURCES
         src/opcodes.c
         src/opcodes_6502.c
         src/opcodes_6502_ext.c
+        src/opcodes_wdc65c02.c
         src/instructions.c
         src/instructions_ext.c
+        src/instructions_wdc65c02.c
         src/debug.c
         src/disassembly.c)
 
@@ -48,6 +50,10 @@ add_executable(test_cpu_structs tests/test_cpu_structs.c)
 target_link_libraries(test_cpu_structs sea64 sea64test)
 add_test("CPU Structs" test_cpu_structs)
 
+add_executable(test_extended_functional_tests tests/test_65c02_extended_opcode_tests.c)
+target_link_libraries(test_extended_functional_tests sea64 sea64test)
+add_test("Klaus's Extended Functional Tests" test_extended_functional_tests)
+
 add_executable(test_functional_tests tests/test_functional_tests.c)
 target_link_libraries(test_functional_tests sea64 sea64test)
 add_test("Klaus's Functional Tests" test_functional_tests)
@@ -63,3 +69,7 @@ add_test("Processor Tests 6502" test_processor_tests_6502)
 add_executable(test_processor_tests_6502_ext tests/test_processor_tests_6502_ext.c)
 target_link_libraries(test_processor_tests_6502_ext sea64 sea64test)
 add_test("Processor Tests 6502 Extended" test_processor_tests_6502_ext)
+
+add_executable(test_processor_tests_wdc65c02 tests/test_processor_tests_wdc65c02.c)
+target_link_libraries(test_processor_tests_wdc65c02 sea64 sea64test)
+add_test("Processor Tests WDC65C02" test_processor_tests_wdc65c02)

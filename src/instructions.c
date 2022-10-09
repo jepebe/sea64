@@ -19,6 +19,7 @@ static void relative_branch(Machine *m, bool should_branch) {
     }
 }
 
+// Add cycle behavior when a page cross has not happened
 inline void page_cross_behavior(Machine *m, AddrMode addr_mode, u16 addr) {
     switch (addr_mode) {
         case ZeroPageIndirectYIndexed:
@@ -151,8 +152,11 @@ void bcs(Machine *m, AddrMode UNUSED addr_mode) {
 
 void bit(Machine *m, AddrMode addr_mode) {
     u8 mem = machine_read_byte_with_mode(m, addr_mode);
-    m->cpu.P.N = (mem & 0x80) == 0x80;
-    m->cpu.P.V = (mem & 0x40) == 0x40;
+
+    if(addr_mode != Immediate) {
+        m->cpu.P.N = (mem & 0x80) == 0x80;
+        m->cpu.P.V = (mem & 0x40) == 0x40;
+    }
 
     m->cpu.P.Z = (m->cpu.A & mem) == 0x00;
 }
@@ -317,6 +321,16 @@ void jmp(Machine *m, AddrMode addr_mode) {
             m->cpu.PC = (high << 8) | low;
             break;
         }
+        case XIndexedAbsoluteIndirect: {
+            addr += m->cpu.X;
+            machine_read_byte(m, m->cpu.PC - 2);  // cycle correct behavior
+            u8 low = machine_read_byte(m, addr);
+            u8 high = machine_read_byte(m, addr + 1);
+            u16 ptr = ((high << 8) | low);
+            m->cpu.PC = ptr;
+            break;
+        }
+
         default:
             cpu_error_marker(m, __FILE__, __LINE__);
             cpu_error(m, "addressing mode %d not implemented", addr_mode);

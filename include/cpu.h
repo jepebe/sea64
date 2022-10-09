@@ -10,12 +10,15 @@ typedef enum {
     Implied,
     Relative,
     XIndexedAbsolute,
+    XIndexedAbsoluteIndirect,
     XIndexedZeroPage,
     XIndexedZeroPageIndirect,
     YIndexedAbsolute,
     YIndexedZeroPage,
     ZeroPage,
+    ZeroPageIndirect,
     ZeroPageIndirectYIndexed,
+    ZeroPageRelative,
 } AddrMode;
 
 typedef union {
@@ -35,6 +38,7 @@ typedef union {
 typedef enum {
     MOS6502 = 0,
     MOS6502EXT,
+    WDC65C02,
 } CPUType;
 
 typedef struct {
