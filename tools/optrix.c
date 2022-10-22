@@ -36,7 +36,7 @@ static char *addr_mode_name(AddrMode mode) {
         case ZeroPageIndirectYIndexed:
             return "($nn),Y";
         case ZeroPageRelative:
-            return "$nn,$nnnn";;
+            return "$nn,$nnnn";
         default:
             error_marker(__FILE__, __LINE__);
             error("addressing mode %d not implemented", mode);
