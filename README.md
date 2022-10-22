@@ -1,3 +1,5 @@
+[![Build and Test](https://github.com/jepebe/sea64/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/jepebe/sea64/actions/workflows/build_and_test.yml)
+
 # sea64
 
 A 6502 emulator written in C.
